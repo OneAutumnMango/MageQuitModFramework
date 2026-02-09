@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net472</TargetFramework>
+		<OutputType>Library</OutputType>
+		<LangVersion>latest</LangVersion>
+		<PlatformTarget>AnyCPU</PlatformTarget>
+		<AssemblyName>ExampleMod</AssemblyName>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Reference Include="BepInEx">
+			<HintPath>..\lib\BepInEx.dll</HintPath>
+		</Reference>
+
+		<Reference Include="UnityEngine">
+			<HintPath>..\lib\UnityEngine.dll</HintPath>
+		</Reference>
+
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>..\lib\UnityEngine.CoreModule.dll</HintPath>
+		</Reference>
+
+		<Reference Include="UnityEngine.UI">
+			<HintPath>..\lib\UnityEngine.UI.dll</HintPath>
+		</Reference>
+
+		<Reference Include="0Harmony">
+			<HintPath>..\lib\0Harmony.dll</HintPath>
+		</Reference>
+
+		<Reference Include="Assembly-CSharp">
+			<HintPath>..\lib\Assembly-CSharp.dll</HintPath>
+		</Reference>
+
+		<!-- Reference the framework DLL -->
+		<Reference Include="SpellcastModFramework">
+			<HintPath>..\SpellcastModFramework\bin\Debug\net472\SpellcastModFramework.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+	<Target Name="CopyToBepInEx" AfterTargets="Build">
+		<ItemGroup>
+			<PluginDlls Include="$(OutputPath)ExampleMod.dll" />
+		</ItemGroup>
+
+		<Copy SourceFiles="@(PluginDlls)"
+			  DestinationFolder="..\..\BepInEx\plugins" />
+	</Target>
+
+</Project>
