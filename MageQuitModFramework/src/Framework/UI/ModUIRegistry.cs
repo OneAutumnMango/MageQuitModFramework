@@ -8,7 +8,7 @@ namespace MageQuitModFramework.UI
     {
         public string ModName { get; set; }
         public string Description { get; set; }
-        public Action<Transform> BuildOptionsUI { get; set; }
+        public Action DrawIMGUI { get; set; }
         public bool IsExpanded { get; set; }
         public int Priority { get; set; } = 100;
     }
@@ -18,13 +18,13 @@ namespace MageQuitModFramework.UI
         private static Dictionary<string, ModUIEntry> _entries = new();
         private static List<ModUIEntry> _sortedEntries = null;
 
-        public static void RegisterMod(string modName, string description, Action<Transform> buildOptionsUI, int priority = 100)
+        public static void RegisterMod(string modName, string description, Action drawIMGUI, int priority = 100)
         {
             _entries[modName] = new ModUIEntry
             {
                 ModName = modName,
                 Description = description,
-                BuildOptionsUI = buildOptionsUI,
+                DrawIMGUI = drawIMGUI,
                 Priority = priority
             };
             _sortedEntries = null;

@@ -1,126 +1,128 @@
 using UnityEngine;
-using UnityEngine.UI;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MageQuitModFramework.UI
 {
     public class DynamicModMenu : MonoBehaviour
     {
-        private GameObject _menuPanel;
-        private Transform _contentContainer;
-        private Dictionary<string, GameObject> _modPanels = new();
-        private Dictionary<string, GameObject> _optionsPanels = new();
+        private bool _isVisible = false;
+        private Rect _windowRect = new Rect(20, 20, 500, 600);
+        private Vector2 _scrollPosition = Vector2.zero;
+        private Dictionary<string, bool> _modExpanded = new Dictionary<string, bool>();
 
         public void Initialize()
         {
-            CreateMenuStructure();
-            BuildModList();
+            FrameworkPlugin.Log.LogInfo("Initializing mod menu with IMGUI");
         }
 
-        private void CreateMenuStructure()
+        private void OnGUI()
         {
-            _menuPanel = UIComponents.CreatePanel(transform, "ModMenuPanel", 400, 600);
-            _menuPanel.GetComponent<Image>().color = StyleManager.BackgroundColor;
+            if (!_isVisible) return;
 
-            var scrollView = UIComponents.CreateScrollView(_menuPanel.transform, 400, 600);
-            _contentContainer = scrollView.GetChild(0).GetChild(0);
+            GUI.depth = -1000;
+            _windowRect = GUI.Window(12345, _windowRect, DrawModMenu, "Mod Menu (F5 to toggle)");
         }
 
-        private void BuildModList()
+        private void DrawModMenu(int windowID)
         {
-            foreach (Transform child in _contentContainer)
-                Destroy(child.gameObject);
+            GUILayout.BeginVertical();
 
-            _modPanels.Clear();
-            _optionsPanels.Clear();
+            _scrollPosition = GUILayout.BeginScrollView(_scrollPosition, GUILayout.Height(550));
 
-            foreach (var modEntry in ModUIRegistry.GetAllMods())
+            var mods = ModUIRegistry.GetAllMods().ToList();
+
+            if (mods.Count == 0)
             {
-                CreateModEntry(modEntry);
+                GUILayout.Label("No mods registered yet.");
             }
-        }
-
-        private void CreateModEntry(ModUIEntry modEntry)
-        {
-            var modPanel = UIComponents.CreatePanel(_contentContainer, $"{modEntry.ModName}_Panel", 380, 40);
-            modPanel.GetComponent<Image>().color = StyleManager.PanelColor;
-            _modPanels[modEntry.ModName] = modPanel;
-
-            var headerButton = modPanel.AddComponent<Button>();
-            headerButton.onClick.AddListener(() => ToggleModPanel(modEntry));
-
-            var headerLayout = modPanel.AddComponent<HorizontalLayoutGroup>();
-            headerLayout.padding = new RectOffset(10, 10, 5, 5);
-            headerLayout.childAlignment = TextAnchor.MiddleLeft;
-            headerLayout.childControlWidth = false;
-            headerLayout.childControlHeight = false;
-
-            var arrow = UIComponents.CreateText(modPanel.transform, $"{modEntry.ModName}_Arrow", 
-                modEntry.IsExpanded ? "▼" : "►", 20);
-            arrow.GetComponent<RectTransform>().sizeDelta = new Vector2(20, 30);
-
-            var title = UIComponents.CreateText(modPanel.transform, $"{modEntry.ModName}_Title", 
-                modEntry.ModName, 18);
-            title.GetComponent<RectTransform>().sizeDelta = new Vector2(300, 30);
-
-            var optionsContainer = UIComponents.CreatePanel(_contentContainer, $"{modEntry.ModName}_Options", 380, 0);
-            optionsContainer.GetComponent<Image>().color = StyleManager.BackgroundColor;
-            optionsContainer.SetActive(modEntry.IsExpanded);
-            _optionsPanels[modEntry.ModName] = optionsContainer;
-
-            var layout = optionsContainer.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(15, 10, 5, 5);
-            layout.spacing = 5;
-            layout.childControlHeight = false;
-            layout.childControlWidth = true;
-
-            if (modEntry.BuildOptionsUI != null)
+            else
             {
-                modEntry.BuildOptionsUI(optionsContainer.transform);
-                LayoutRebuilder.ForceRebuildLayoutImmediate(optionsContainer.GetComponent<RectTransform>());
+                foreach (var modEntry in mods)
+                {
+                    GUILayout.BeginVertical(GUI.skin.box);
+
+                    // Mod header with expand/collapse button
+                    GUILayout.BeginHorizontal();
+
+                    if (!_modExpanded.ContainsKey(modEntry.ModName))
+                        _modExpanded[modEntry.ModName] = modEntry.IsExpanded;
+
+                    string arrow = _modExpanded[modEntry.ModName] ? "▼" : "►";
+                    if (GUILayout.Button(arrow + " " + modEntry.ModName, GUILayout.Height(30)))
+                    {
+                        _modExpanded[modEntry.ModName] = !_modExpanded[modEntry.ModName];
+                        modEntry.IsExpanded = _modExpanded[modEntry.ModName];
+                    }
+
+                    GUILayout.EndHorizontal();
+
+                    // Show options if expanded
+                    if (_modExpanded[modEntry.ModName])
+                    {
+                        GUILayout.BeginVertical(GUI.skin.box);
+                        
+                        // Show description
+                        if (!string.IsNullOrEmpty(modEntry.Description))
+                        {
+                            GUILayout.Label(modEntry.Description, GUI.skin.GetStyle("Label"));
+                            GUILayout.Space(5);
+                        }
+                        
+                        // Call IMGUI callback if available
+                        if (modEntry.DrawIMGUI != null)
+                        {
+                            try
+                            {
+                                modEntry.DrawIMGUI();
+                            }
+                            catch (Exception ex)
+                            {
+                                GUILayout.Label($"Error drawing mod UI: {ex.Message}");
+                            }
+                        }
+                        else
+                        {
+                            GUILayout.Label("No options available for this mod.");
+                        }
+                        {
+                            GUILayout.Label("No options available for this mod.");
+                        }
+                        
+                        GUILayout.EndVertical();
+                    }
+
+                    GUILayout.EndVertical();
+                    GUILayout.Space(5);
+                }
             }
-        }
 
-        private void ToggleModPanel(ModUIEntry modEntry)
-        {
-            modEntry.IsExpanded = !modEntry.IsExpanded;
+            GUILayout.EndScrollView();
 
-            if (_optionsPanels.TryGetValue(modEntry.ModName, out var optionsPanel))
-            {
-                optionsPanel.SetActive(modEntry.IsExpanded);
-            }
+            GUILayout.EndVertical();
 
-            if (_modPanels.TryGetValue(modEntry.ModName, out var modPanel))
-            {
-                var arrow = modPanel.transform.Find($"{modEntry.ModName}_Arrow")?.GetComponent<Text>();
-                if (arrow != null)
-                    arrow.text = modEntry.IsExpanded ? "▼" : "►";
-            }
-
-            LayoutRebuilder.ForceRebuildLayoutImmediate(_contentContainer.GetComponent<RectTransform>());
+            GUI.DragWindow(new Rect(0, 0, 500, 20));
         }
 
         public void RefreshModList()
         {
-            BuildModList();
+            _modExpanded.Clear();
         }
 
         public void Show()
         {
-            if (_menuPanel != null)
-                _menuPanel.SetActive(true);
+            _isVisible = true;
         }
 
         public void Hide()
         {
-            if (_menuPanel != null)
-                _menuPanel.SetActive(false);
+            _isVisible = false;
         }
 
         public void Toggle()
         {
-            if (_menuPanel != null)
-                _menuPanel.SetActive(!_menuPanel.activeSelf);
+            _isVisible = !_isVisible;
         }
     }
 }

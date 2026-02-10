@@ -10,11 +10,12 @@ using MageQuitModFramework.Core;
 namespace ExampleMod
 {
     [BepInPlugin("com.example.spellmod", "Example Spell Mod", "1.0.0")]
-    [BepInDependency("com.spellcast.modframework", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("com.magequit.modframework", BepInDependency.DependencyFlags.HardDependency)]
     public class ExampleModPlugin : BaseUnityPlugin
     {
         private static ManualLogSource _log;
         private Harmony _harmony;
+        private bool _customBehaviorEnabled = false;
 
         private void Awake()
         {
@@ -34,38 +35,31 @@ namespace ExampleMod
             ModUIRegistry.RegisterMod(
                 "Example Mod",
                 "A simple example mod demonstrating framework usage",
-                BuildModUI,
+                DrawModUI,
                 priority: 50
             );
         }
 
-        private void BuildModUI(Transform parent)
+        private void DrawModUI()
         {
-            var titleText = UIComponents.CreateText(parent, "ExampleTitle",
-                "Example Mod Settings", 16);
-            titleText.fontStyle = FontStyle.Bold;
-
-            var descPanel = UIComponents.CreatePanel(parent, "DescPanel", 350, 60);
-            descPanel.GetComponent<Image>().color = StyleManager.PanelColor;
-
-            var descText = UIComponents.CreateText(descPanel.transform, "Desc",
-                "This example mod demonstrates basic framework usage:\n" +
-                "- Spell modification via GameModificationHelpers\n" +
-                "- UI registration with ModUIRegistry\n" +
-                "- Simple interactive controls", 12);
-
-            var togglePanel = UIComponents.CreatePanel(parent, "TogglePanel", 350, 40);
-            togglePanel.GetComponent<Image>().color = StyleManager.PanelColor;
-
-            var toggleText = UIComponents.CreateText(togglePanel.transform, "ToggleLabel",
-                "Enable Custom Behavior:", 14);
+            UnityEngine.GUILayout.Label("Example Mod Settings");
+            UnityEngine.GUILayout.Space(10);
             
-            var toggle = togglePanel.AddComponent<Toggle>();
-            toggle.isOn = false;
-            toggle.onValueChanged.AddListener((value) =>
+            UnityEngine.GUILayout.Label("This mod demonstrates:");
+            UnityEngine.GUILayout.Label("• Spell modification via GameModificationHelpers");
+            UnityEngine.GUILayout.Label("• UI registration with ModUIRegistry");
+            UnityEngine.GUILayout.Label("• Simple interactive controls");
+            UnityEngine.GUILayout.Space(10);
+            
+            UnityEngine.GUILayout.BeginHorizontal();
+            UnityEngine.GUILayout.Label("Enable Custom Behavior:", UnityEngine.GUILayout.Width(200));
+            bool newValue = UnityEngine.GUILayout.Toggle(_customBehaviorEnabled, "");
+            if (newValue != _customBehaviorEnabled)
             {
-                _log.LogInfo($"Custom behavior toggled: {value}");
-            });
+                _customBehaviorEnabled = newValue;
+                _log.LogInfo($"Custom behavior toggled: {_customBehaviorEnabled}");
+            }
+            UnityEngine.GUILayout.EndHorizontal();
         }
 
         [HarmonyPatch(typeof(SpellManager), "Awake")]

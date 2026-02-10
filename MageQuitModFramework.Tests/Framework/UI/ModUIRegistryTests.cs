@@ -17,7 +17,7 @@ namespace MageQuitModFramework.Tests.Framework.UI
             var modName = "TestMod";
             var description = "Test Description";
 
-            ModUIRegistry.RegisterMod(modName, description, _ => { });
+            ModUIRegistry.RegisterMod(modName, description, () => { });
 
             var result = ModUIRegistry.TryGetMod(modName, out var entry);
             Assert.True(result);
@@ -31,7 +31,7 @@ namespace MageQuitModFramework.Tests.Framework.UI
             var modName = "TestMod";
             var defaultPriority = 100;
 
-            ModUIRegistry.RegisterMod(modName, "Description", _ => { });
+            ModUIRegistry.RegisterMod(modName, "Description", () => { });
 
             ModUIRegistry.TryGetMod(modName, out var entry);
             Assert.Equal(defaultPriority, entry.Priority);
@@ -43,7 +43,7 @@ namespace MageQuitModFramework.Tests.Framework.UI
             var modName = "TestMod";
             var customPriority = 50;
 
-            ModUIRegistry.RegisterMod(modName, "Description", _ => { }, customPriority);
+            ModUIRegistry.RegisterMod(modName, "Description", () => { }, customPriority);
 
             ModUIRegistry.TryGetMod(modName, out var entry);
             Assert.Equal(customPriority, entry.Priority);
@@ -56,8 +56,8 @@ namespace MageQuitModFramework.Tests.Framework.UI
             var firstDescription = "First";
             var secondDescription = "Second";
 
-            ModUIRegistry.RegisterMod(modName, firstDescription, _ => { });
-            ModUIRegistry.RegisterMod(modName, secondDescription, _ => { });
+            ModUIRegistry.RegisterMod(modName, firstDescription, () => { });
+            ModUIRegistry.RegisterMod(modName, secondDescription, () => { });
 
             ModUIRegistry.TryGetMod(modName, out var entry);
             Assert.Equal(secondDescription, entry.Description);
@@ -67,7 +67,7 @@ namespace MageQuitModFramework.Tests.Framework.UI
         public void UnregisterMod_RemovesMod()
         {
             var modName = "TestMod";
-            ModUIRegistry.RegisterMod(modName, "Description", _ => { });
+            ModUIRegistry.RegisterMod(modName, "Description", () => { });
 
             ModUIRegistry.UnregisterMod(modName);
 
@@ -85,7 +85,7 @@ namespace MageQuitModFramework.Tests.Framework.UI
         public void TryGetMod_ReturnsTrue_WhenModExists()
         {
             var modName = "TestMod";
-            ModUIRegistry.RegisterMod(modName, "Description", _ => { });
+            ModUIRegistry.RegisterMod(modName, "Description", () => { });
 
             var result = ModUIRegistry.TryGetMod(modName, out var entry);
 
@@ -114,9 +114,9 @@ namespace MageQuitModFramework.Tests.Framework.UI
         public void GetAllMods_ReturnsAllRegisteredMods()
         {
             var modCount = 3;
-            ModUIRegistry.RegisterMod("Mod1", "Description1", _ => { });
-            ModUIRegistry.RegisterMod("Mod2", "Description2", _ => { });
-            ModUIRegistry.RegisterMod("Mod3", "Description3", _ => { });
+            ModUIRegistry.RegisterMod("Mod1", "Description1", () => { });
+            ModUIRegistry.RegisterMod("Mod2", "Description2", () => { });
+            ModUIRegistry.RegisterMod("Mod3", "Description3", () => { });
 
             var mods = ModUIRegistry.GetAllMods().ToList();
 
@@ -126,9 +126,9 @@ namespace MageQuitModFramework.Tests.Framework.UI
         [Fact]
         public void GetAllMods_SortsByPriority_Ascending()
         {
-            ModUIRegistry.RegisterMod("HighPriority", "Desc", _ => { }, 200);
-            ModUIRegistry.RegisterMod("LowPriority", "Desc", _ => { }, 50);
-            ModUIRegistry.RegisterMod("MediumPriority", "Desc", _ => { }, 100);
+            ModUIRegistry.RegisterMod("HighPriority", "Desc", () => { }, 200);
+            ModUIRegistry.RegisterMod("LowPriority", "Desc", () => { }, 50);
+            ModUIRegistry.RegisterMod("MediumPriority", "Desc", () => { }, 100);
 
             var mods = ModUIRegistry.GetAllMods().ToList();
 
@@ -140,7 +140,7 @@ namespace MageQuitModFramework.Tests.Framework.UI
         [Fact]
         public void GetAllMods_CachesSortedList()
         {
-            ModUIRegistry.RegisterMod("Mod1", "Desc", _ => { }, 100);
+            ModUIRegistry.RegisterMod("Mod1", "Desc", () => { }, 100);
             
             var firstCall = ModUIRegistry.GetAllMods();
             var secondCall = ModUIRegistry.GetAllMods();
@@ -151,10 +151,10 @@ namespace MageQuitModFramework.Tests.Framework.UI
         [Fact]
         public void RegisterMod_InvalidatesSortedCache()
         {
-            ModUIRegistry.RegisterMod("Mod1", "Desc", _ => { }, 100);
+            ModUIRegistry.RegisterMod("Mod1", "Desc", () => { }, 100);
             var firstCall = ModUIRegistry.GetAllMods();
 
-            ModUIRegistry.RegisterMod("Mod2", "Desc", _ => { }, 50);
+            ModUIRegistry.RegisterMod("Mod2", "Desc", () => { }, 50);
             var secondCall = ModUIRegistry.GetAllMods();
 
             Assert.NotSame(firstCall, secondCall);
@@ -163,8 +163,8 @@ namespace MageQuitModFramework.Tests.Framework.UI
         [Fact]
         public void UnregisterMod_InvalidatesSortedCache()
         {
-            ModUIRegistry.RegisterMod("Mod1", "Desc", _ => { });
-            ModUIRegistry.RegisterMod("Mod2", "Desc", _ => { });
+            ModUIRegistry.RegisterMod("Mod1", "Desc", () => { });
+            ModUIRegistry.RegisterMod("Mod2", "Desc", () => { });
             var firstCall = ModUIRegistry.GetAllMods();
 
             ModUIRegistry.UnregisterMod("Mod1");
@@ -176,8 +176,8 @@ namespace MageQuitModFramework.Tests.Framework.UI
         [Fact]
         public void Clear_RemovesAllMods()
         {
-            ModUIRegistry.RegisterMod("Mod1", "Desc", _ => { });
-            ModUIRegistry.RegisterMod("Mod2", "Desc", _ => { });
+            ModUIRegistry.RegisterMod("Mod1", "Desc", () => { });
+            ModUIRegistry.RegisterMod("Mod2", "Desc", () => { });
 
             ModUIRegistry.Clear();
 
@@ -188,7 +188,7 @@ namespace MageQuitModFramework.Tests.Framework.UI
         [Fact]
         public void Clear_InvalidatesSortedCache()
         {
-            ModUIRegistry.RegisterMod("Mod1", "Desc", _ => { });
+            ModUIRegistry.RegisterMod("Mod1", "Desc", () => { });
             var firstCall = ModUIRegistry.GetAllMods();
 
             ModUIRegistry.Clear();
@@ -200,7 +200,7 @@ namespace MageQuitModFramework.Tests.Framework.UI
         [Fact]
         public void ModUIEntry_InitiallyNotExpanded()
         {
-            ModUIRegistry.RegisterMod("TestMod", "Desc", _ => { });
+            ModUIRegistry.RegisterMod("TestMod", "Desc", () => { });
 
             ModUIRegistry.TryGetMod("TestMod", out var entry);
             Assert.False(entry.IsExpanded);
@@ -209,7 +209,7 @@ namespace MageQuitModFramework.Tests.Framework.UI
         [Fact]
         public void ModUIEntry_CanToggleExpanded()
         {
-            ModUIRegistry.RegisterMod("TestMod", "Desc", _ => { });
+            ModUIRegistry.RegisterMod("TestMod", "Desc", () => { });
 
             ModUIRegistry.TryGetMod("TestMod", out var entry);
             entry.IsExpanded = true;
@@ -218,14 +218,14 @@ namespace MageQuitModFramework.Tests.Framework.UI
         }
 
         [Fact]
-        public void RegisterMod_StoresBuildOptionsUIAction()
+        public void RegisterMod_StoresDrawIMGUIAction()
         {
-            void buildAction(UnityEngine.Transform t) { }
+            void buildAction() { }
 
             ModUIRegistry.RegisterMod("TestMod", "Desc", buildAction);
 
             ModUIRegistry.TryGetMod("TestMod", out var entry);
-            Assert.NotNull(entry.BuildOptionsUI);
+            Assert.NotNull(entry.DrawIMGUI);
         }
     }
 }

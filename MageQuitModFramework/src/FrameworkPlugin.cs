@@ -12,7 +12,6 @@ namespace MageQuitModFramework
         public static FrameworkPlugin Instance { get; private set; }
 
         private DynamicModMenu _modMenu;
-        private bool _menuVisible = false;
 
         private void Awake()
         {
@@ -38,13 +37,9 @@ namespace MageQuitModFramework
 
         public void ToggleModMenu()
         {
-            _menuVisible = !_menuVisible;
-            if (_menuVisible)
-                _modMenu?.Show();
-            else
-                _modMenu?.Hide();
+            _modMenu.Toggle();
 
-            Log.LogInfo($"Mod menu {(_menuVisible ? "shown" : "hidden")}");
+            Log.LogInfo($"Mod menu GO: {(_modMenu.gameObject.activeSelf ? "shown" : "hidden")}");
         }
 
         public void RefreshModMenu()

@@ -28,6 +28,10 @@
 			<HintPath>..\lib\UnityEngine.TextRenderingModule.dll</HintPath>
 		</Reference>
 
+		<Reference Include="UnityEngine.IMGUIModule">
+			<HintPath>..\lib\UnityEngine.IMGUIModule.dll</HintPath>
+		</Reference>
+
 		<Reference Include="0Harmony">
 			<HintPath>..\lib\0Harmony.dll</HintPath>
 		</Reference>
@@ -39,13 +43,22 @@
 		<ProjectReference Include="..\MageQuitModFramework\MageQuitModFramework.csproj" />
 	</ItemGroup>
 
-	<Target Name="CopyToBepInEx" AfterTargets="Build">
+	<PropertyGroup>
+		<BepInExPluginDir>
+			C:\Program Files (x86)\Steam\steamapps\common\MageQuit\BepInEx\plugins
+		</BepInExPluginDir>
+	</PropertyGroup>
+
+	<Target Name="CopyToBepInEx"
+			AfterTargets="Build"
+			Condition="Exists('$(BepInExPluginDir)')">
+
 		<ItemGroup>
 			<PluginDlls Include="$(OutputPath)ExampleMod.dll" />
 		</ItemGroup>
 
 		<Copy SourceFiles="@(PluginDlls)"
-			  DestinationFolder="..\..\BepInEx\plugins" />
+				DestinationFolder="$(BepInExPluginDir)" />
 	</Target>
 
 </Project>

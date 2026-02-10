@@ -42,13 +42,22 @@
 		</Reference>
 	</ItemGroup>
 
-	<Target Name="CopyToBepInEx" AfterTargets="Build" Condition="Exists('..\..\BepInEx\plugins')">
+	<PropertyGroup>
+		<BepInExPluginDir>
+			C:\Program Files (x86)\Steam\steamapps\common\MageQuit\BepInEx\plugins
+		</BepInExPluginDir>
+	</PropertyGroup>
+
+	<Target Name="CopyToBepInEx"
+			AfterTargets="Build"
+			Condition="Exists('$(BepInExPluginDir)')">
+
 		<ItemGroup>
 			<PluginDlls Include="$(OutputPath)MageQuitModFramework.dll" />
 		</ItemGroup>
 
 		<Copy SourceFiles="@(PluginDlls)"
-			  DestinationFolder="..\..\BepInEx\plugins" />
+				DestinationFolder="$(BepInExPluginDir)" />
 	</Target>
 
 </Project>
