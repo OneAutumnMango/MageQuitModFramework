@@ -20,7 +20,7 @@ namespace SpellcastModFramework.Loading
         {
             if (IsLoaded)
             {
-                FrameworkPlugin.Log.LogWarning($"{ModuleName} is already loaded");
+                FrameworkPlugin.Log?.LogWarning($"{ModuleName} is already loaded");
                 return;
             }
 
@@ -28,11 +28,11 @@ namespace SpellcastModFramework.Loading
             {
                 OnLoad(harmony);
                 IsLoaded = true;
-                FrameworkPlugin.Log.LogInfo($"{ModuleName} loaded successfully");
+                FrameworkPlugin.Log?.LogInfo($"{ModuleName} loaded successfully");
             }
             catch (Exception ex)
             {
-                FrameworkPlugin.Log.LogError($"Failed to load {ModuleName}: {ex}");
+                FrameworkPlugin.Log?.LogError($"Failed to load {ModuleName}: {ex}");
                 throw;
             }
         }
@@ -41,7 +41,7 @@ namespace SpellcastModFramework.Loading
         {
             if (!IsLoaded)
             {
-                FrameworkPlugin.Log.LogWarning($"{ModuleName} is not loaded");
+                FrameworkPlugin.Log?.LogWarning($"{ModuleName} is not loaded");
                 return;
             }
 
@@ -49,11 +49,11 @@ namespace SpellcastModFramework.Loading
             {
                 OnUnload(harmony);
                 IsLoaded = false;
-                FrameworkPlugin.Log.LogInfo($"{ModuleName} unloaded successfully");
+                FrameworkPlugin.Log?.LogInfo($"{ModuleName} unloaded successfully");
             }
             catch (Exception ex)
             {
-                FrameworkPlugin.Log.LogError($"Failed to unload {ModuleName}: {ex}");
+                FrameworkPlugin.Log?.LogError($"Failed to unload {ModuleName}: {ex}");
                 throw;
             }
         }

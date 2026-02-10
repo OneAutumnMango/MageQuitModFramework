@@ -18,19 +18,19 @@ namespace SpellcastModFramework.Loading
         {
             if (_modules.ContainsKey(module.ModuleName))
             {
-                FrameworkPlugin.Log.LogWarning($"Module {module.ModuleName} is already registered");
+                FrameworkPlugin.Log?.LogWarning($"Module {module.ModuleName} is already registered");
                 return;
             }
 
             _modules[module.ModuleName] = module;
-            FrameworkPlugin.Log.LogInfo($"Registered module: {module.ModuleName}");
+            FrameworkPlugin.Log?.LogInfo($"Registered module: {module.ModuleName}");
         }
 
         public static bool LoadModule(string moduleName)
         {
             if (!_modules.TryGetValue(moduleName, out var module))
             {
-                FrameworkPlugin.Log.LogError($"Module {moduleName} not found");
+                FrameworkPlugin.Log?.LogError($"Module {moduleName} not found");
                 return false;
             }
 
@@ -42,7 +42,7 @@ namespace SpellcastModFramework.Loading
         {
             if (!_modules.TryGetValue(moduleName, out var module))
             {
-                FrameworkPlugin.Log.LogError($"Module {moduleName} not found");
+                FrameworkPlugin.Log?.LogError($"Module {moduleName} not found");
                 return false;
             }
 
@@ -63,6 +63,11 @@ namespace SpellcastModFramework.Loading
         public static IEnumerable<string> GetLoadedModuleNames()
         {
             return _modules.Where(kvp => kvp.Value.IsLoaded).Select(kvp => kvp.Key);
+        }
+
+        public static void Clear()
+        {
+            _modules.Clear();
         }
     }
 }
