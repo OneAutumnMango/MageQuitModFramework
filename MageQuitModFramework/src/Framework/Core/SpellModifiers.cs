@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace SpellcastModFramework.Core
+namespace MageQuitModFramework.Core
 {
     public class SpellModifiers
     {

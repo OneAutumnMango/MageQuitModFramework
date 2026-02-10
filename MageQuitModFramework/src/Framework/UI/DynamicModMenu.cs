@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-namespace SpellcastModFramework.UI
+namespace MageQuitModFramework.UI
 {
     public class DynamicModMenu : MonoBehaviour
     {

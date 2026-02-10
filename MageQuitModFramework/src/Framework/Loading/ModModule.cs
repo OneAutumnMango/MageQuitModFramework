@@ -1,7 +1,7 @@
 using HarmonyLib;
 using System;
 
-namespace SpellcastModFramework.Loading
+namespace MageQuitModFramework.Loading
 {
     public interface IModModule
     {

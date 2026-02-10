@@ -4,9 +4,9 @@ using System.Linq;
 using System.Reflection.Emit;
 using Xunit;
 using HarmonyLib;
-using SpellcastModFramework.Core;
+using MageQuitModFramework.Core;
 
-namespace SpellcastModFramework.Tests
+namespace MageQuitModFramework.Tests
 {
     public class GameModificationHelpersTests
     {

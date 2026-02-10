@@ -27,7 +27,7 @@
 		<Reference Include="UnityEngine.TextRenderingModule">
 			<HintPath>..\lib\UnityEngine.TextRenderingModule.dll</HintPath>
 		</Reference>
-		
+
 		<Reference Include="0Harmony">
 			<HintPath>..\lib\0Harmony.dll</HintPath>
 		</Reference>
@@ -36,7 +36,7 @@
 			<HintPath>..\lib\Assembly-CSharp.dll</HintPath>
 		</Reference>
 
-		<ProjectReference Include="..\SpellcastModFramework\SpellcastModFramework.csproj" />
+		<ProjectReference Include="..\MageQuitModFramework\MageQuitModFramework.csproj" />
 	</ItemGroup>
 
 	<Target Name="CopyToBepInEx" AfterTargets="Build">

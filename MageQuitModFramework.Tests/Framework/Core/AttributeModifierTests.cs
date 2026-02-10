@@ -1,7 +1,7 @@
 using Xunit;
-using SpellcastModFramework.Core;
+using MageQuitModFramework.Core;
 
-namespace SpellcastModFramework.Tests
+namespace MageQuitModFramework.Tests
 {
     public class AttributeModifierTests
     {

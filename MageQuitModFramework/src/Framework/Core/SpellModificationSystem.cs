@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace SpellcastModFramework.Core
+namespace MageQuitModFramework.Core
 {
     public static class SpellModificationSystem
     {

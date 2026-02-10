@@ -1,8 +1,8 @@
 using Xunit;
-using SpellcastModFramework.UI;
+using MageQuitModFramework.UI;
 using System.Linq;
 
-namespace SpellcastModFramework.Tests.Framework.UI
+namespace MageQuitModFramework.Tests.Framework.UI
 {
     public class ModUIRegistryTests
     {

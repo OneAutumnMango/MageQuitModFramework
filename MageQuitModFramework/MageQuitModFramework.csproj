@@ -5,7 +5,7 @@
 		<OutputType>Library</OutputType>
 		<LangVersion>latest</LangVersion>
 		<PlatformTarget>AnyCPU</PlatformTarget>
-		<AssemblyName>SpellcastModFramework</AssemblyName>
+		<AssemblyName>MageQuitModFramework</AssemblyName>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -42,9 +42,9 @@
 		</Reference>
 	</ItemGroup>
 
-	<Target Name="CopyToBepInEx" AfterTargets="Build">
+	<Target Name="CopyToBepInEx" AfterTargets="Build" Condition="Exists('..\..\BepInEx\plugins')">
 		<ItemGroup>
-			<PluginDlls Include="$(OutputPath)SpellcastModFramework.dll" />
+			<PluginDlls Include="$(OutputPath)MageQuitModFramework.dll" />
 		</ItemGroup>
 
 		<Copy SourceFiles="@(PluginDlls)"

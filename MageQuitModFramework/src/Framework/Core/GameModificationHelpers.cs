@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace SpellcastModFramework.Core
+namespace MageQuitModFramework.Core
 {
     public static class GameModificationHelpers
     {
@@ -179,6 +179,20 @@ namespace SpellcastModFramework.Core
                 HarmonyMethod postfix = postfixMethod != null ? new HarmonyMethod(postfixMethod) : null;
 
                 harmony.Patch(initMethod, prefix: prefix, postfix: postfix);
+            }
+        }
+
+        public static void ApplyFieldValuesToInstance(object instance, Dictionary<string, float> values)
+        {
+            if (instance == null || values == null) return;
+
+            BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            Type type = instance.GetType();
+
+            foreach (var kvp in values)
+            {
+                FieldInfo field = type.GetField(kvp.Key, flags);
+                field?.SetValue(instance, kvp.Value);
             }
         }
 

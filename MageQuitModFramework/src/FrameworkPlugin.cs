@@ -1,11 +1,11 @@
 using BepInEx;
 using BepInEx.Logging;
 using UnityEngine;
-using SpellcastModFramework.UI;
+using MageQuitModFramework.UI;
 
-namespace SpellcastModFramework
+namespace MageQuitModFramework
 {
-    [BepInPlugin("com.spellcast.modframework", "Spellcast Mod Framework", "1.0.0")]
+    [BepInPlugin("com.magequit.modframework", "MageQuit Mod Framework", "1.0.0")]
     public class FrameworkPlugin : BaseUnityPlugin
     {
         public static ManualLogSource Log { get; private set; }

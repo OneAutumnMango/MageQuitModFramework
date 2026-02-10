@@ -2,7 +2,7 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SpellcastModFramework.Loading
+namespace MageQuitModFramework.Loading
 {
     public static class ModuleManager
     {

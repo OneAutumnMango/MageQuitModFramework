@@ -1,9 +1,9 @@
 using Xunit;
-using SpellcastModFramework.Loading;
+using MageQuitModFramework.Loading;
 using HarmonyLib;
 using System.Linq;
 
-namespace SpellcastModFramework.Tests.Framework.Loading
+namespace MageQuitModFramework.Tests.Framework.Loading
 {
     public class ModuleManagerTests
     {

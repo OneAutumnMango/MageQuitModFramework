@@ -1,12 +1,12 @@
 using UnityEngine;
 using System;
 
-namespace SpellcastModFramework.UI
+namespace MageQuitModFramework.UI
 {
     public static class StyleManager
     {
         private static GUIStyle _green, _red;
-        private static GUIStyle _commonStyle, _rareStyle, _legendaryStyle;
+        private static GUIStyle _white, _purple, _gold;
         private static bool _initialized = false;
 
         public static Color BackgroundColor => new Color(0.1f, 0.1f, 0.1f, 0.9f);
@@ -30,30 +30,30 @@ namespace SpellcastModFramework.UI
             }
         }
 
-        public static GUIStyle CommonStyle
+        public static GUIStyle White
         {
             get
             {
                 EnsureInitialized();
-                return _commonStyle;
+                return _white;
             }
         }
 
-        public static GUIStyle RareStyle
+        public static GUIStyle Purple
         {
             get
             {
                 EnsureInitialized();
-                return _rareStyle;
+                return _purple;
             }
         }
 
-        public static GUIStyle LegendaryStyle
+        public static GUIStyle Gold
         {
             get
             {
                 EnsureInitialized();
-                return _legendaryStyle;
+                return _gold;
             }
         }
 
@@ -76,13 +76,13 @@ namespace SpellcastModFramework.UI
             _red.active.textColor = downColor;
             _red.focused.textColor = downColor;
 
-            _commonStyle = new GUIStyle(GUI.skin.label);
+            _white = new GUIStyle(GUI.skin.label);
 
-            _rareStyle = new GUIStyle(GUI.skin.label);
-            _rareStyle.normal.textColor = new Color(0.75f, 0.4f, 0.9f);
+            _purple = new GUIStyle(GUI.skin.label);
+            _purple.normal.textColor = new Color(0.75f, 0.4f, 0.9f);
 
-            _legendaryStyle = new GUIStyle(GUI.skin.label);
-            _legendaryStyle.normal.textColor = new Color(1.0f, 0.82f, 0.2f);
+            _gold = new GUIStyle(GUI.skin.label);
+            _gold.normal.textColor = new Color(1.0f, 0.82f, 0.2f);
 
             _initialized = true;
         }

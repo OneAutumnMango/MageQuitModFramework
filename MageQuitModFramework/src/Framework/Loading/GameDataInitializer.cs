@@ -2,9 +2,9 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SpellcastModFramework.Core;
+using MageQuitModFramework.Core;
 
-namespace SpellcastModFramework.Loading
+namespace MageQuitModFramework.Loading
 {
     [HarmonyPatch(typeof(SpellManager), "Awake")]
     public static class GameDataInitializer

@@ -1,6 +1,6 @@
 using System;
 
-namespace SpellcastModFramework.Core
+namespace MageQuitModFramework.Core
 {
     public class AttributeModifier(float baseValue, float mult = 1f)
     {

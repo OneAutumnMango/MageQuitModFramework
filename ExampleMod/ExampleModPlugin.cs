@@ -3,9 +3,9 @@ using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
-using SpellcastModFramework;
-using SpellcastModFramework.UI;
-using SpellcastModFramework.Core;
+using MageQuitModFramework;
+using MageQuitModFramework.UI;
+using MageQuitModFramework.Core;
 
 namespace ExampleMod
 {

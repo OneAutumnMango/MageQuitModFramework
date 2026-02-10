@@ -1,8 +1,8 @@
 using Xunit;
-using SpellcastModFramework.Core;
+using MageQuitModFramework.Core;
 using System.Collections.Generic;
 
-namespace SpellcastModFramework.Tests
+namespace MageQuitModFramework.Tests
 {
     public class SpellModificationSystemTests
     {

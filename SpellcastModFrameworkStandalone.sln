@@ -5,9 +5,9 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleMod", "ExampleMod\ExampleMod.csproj", "{C31088C0-D7C9-B6EA-3189-5CB415304D26}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpellcastModFramework", "SpellcastModFramework\SpellcastModFramework.csproj", "{FA12557D-175B-1929-4D8D-74F7A2099540}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MageQuitModFramework", "MageQuitModFramework\MageQuitModFramework.csproj", "{FA12557D-175B-1929-4D8D-74F7A2099540}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpellcastModFramework.Tests", "SpellcastModFramework.Tests\SpellcastModFramework.Tests.csproj", "{B2C32AB9-FA6B-4CF3-85C6-4EE31A93831B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MageQuitModFramework.Tests", "MageQuitModFramework.Tests\MageQuitModFramework.Tests.csproj", "{B2C32AB9-FA6B-4CF3-85C6-4EE31A93831B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
