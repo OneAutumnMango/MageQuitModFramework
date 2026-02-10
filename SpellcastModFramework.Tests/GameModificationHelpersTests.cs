@@ -12,8 +12,10 @@ namespace SpellcastModFramework.Tests
     {
         private class TestClass
         {
+#pragma warning disable CS0414
             private int _privateInt = 42;
             private string _privateString = "test";
+#pragma warning restore CS0414
             public float PublicFloat = 3.14f;
         }
 
