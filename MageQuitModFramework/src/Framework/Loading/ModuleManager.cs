@@ -7,11 +7,12 @@ namespace MageQuitModFramework.Loading
     public static class ModuleManager
     {
         private static readonly Dictionary<string, IModModule> _modules = [];
-        private static Harmony _harmony;
+        private static readonly Dictionary<string, Harmony> _moduleHarmonyInstances = [];
+        private static string _baseHarmonyId;
 
         public static void Initialize(Harmony harmony)
         {
-            _harmony = harmony;
+            _baseHarmonyId = harmony.Id;
         }
 
         public static void RegisterModule(IModModule module)
@@ -34,7 +35,13 @@ namespace MageQuitModFramework.Loading
                 return false;
             }
 
-            module.Load(_harmony);
+            // Create a unique Harmony instance for this module
+            if (!_moduleHarmonyInstances.ContainsKey(moduleName))
+            {
+                _moduleHarmonyInstances[moduleName] = new Harmony($"{_baseHarmonyId}.{moduleName}");
+            }
+
+            module.Load(_moduleHarmonyInstances[moduleName]);
             return true;
         }
 
@@ -46,7 +53,11 @@ namespace MageQuitModFramework.Loading
                 return false;
             }
 
-            module.Unload(_harmony);
+            if (_moduleHarmonyInstances.TryGetValue(moduleName, out var harmony))
+            {
+                module.Unload(harmony);
+            }
+
             return true;
         }
 
@@ -68,6 +79,7 @@ namespace MageQuitModFramework.Loading
         public static void Clear()
         {
             _modules.Clear();
+            _moduleHarmonyInstances.Clear();
         }
     }
 }

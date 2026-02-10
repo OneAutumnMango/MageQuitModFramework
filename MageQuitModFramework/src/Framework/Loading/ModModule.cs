@@ -1,5 +1,6 @@
 using HarmonyLib;
 using System;
+using System.Reflection;
 
 namespace MageQuitModFramework.Loading
 {
@@ -60,5 +61,24 @@ namespace MageQuitModFramework.Loading
 
         protected abstract void OnLoad(Harmony harmony);
         protected abstract void OnUnload(Harmony harmony);
+
+        /// <summary>
+        /// Patches all Harmony-attributed types in the same namespace as the marker type.
+        /// </summary>
+        /// <param name="harmony">Harmony instance to use for patching</param>
+        /// <param name="markerType">Type whose namespace will be scanned for patches</param>
+        protected static void PatchGroup(Harmony harmony, Type markerType)
+        {
+            var asm = markerType.Assembly;
+            var targetNamespace = markerType.Namespace;
+
+            foreach (var type in asm.GetTypes())
+            {
+                if (type.Namespace == targetNamespace)
+                {
+                    harmony.CreateClassProcessor(type).Patch();
+                }
+            }
+        }
     }
 }
