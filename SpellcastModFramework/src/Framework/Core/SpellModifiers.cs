@@ -42,7 +42,7 @@ namespace SpellcastModFramework.Core
         public bool TrySetModifier(string attributeName, AttributeModifier modifier)
         {
             var prop = typeof(SpellModifiers).GetProperty(attributeName);
-            if (prop != null && prop.PropertyType == typeof(AttributeModifier))
+            if (prop?.PropertyType == typeof(AttributeModifier))
             {
                 prop.SetValue(this, modifier);
                 return true;
