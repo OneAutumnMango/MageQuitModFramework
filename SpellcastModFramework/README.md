@@ -69,7 +69,6 @@ UIComponents.CreateText(parent, "id", "text", fontSize);
 UIComponents.CreateButton(parent, "id", "text", onClick);
 UIComponents.CreatePanel(parent, "id", width, height);
 UIComponents.CreateScrollView(parent, width, height);
-StyleManager.GetTierStyle(tier);  // Pre-configured styles
 ```
 
 #### Spell Modification

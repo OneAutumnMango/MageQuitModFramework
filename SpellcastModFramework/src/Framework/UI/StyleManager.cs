@@ -9,6 +9,9 @@ namespace SpellcastModFramework.UI
         private static GUIStyle _commonStyle, _rareStyle, _legendaryStyle;
         private static bool _initialized = false;
 
+        public static Color BackgroundColor => new Color(0.1f, 0.1f, 0.1f, 0.9f);
+        public static Color PanelColor => new Color(0.2f, 0.2f, 0.2f, 0.95f);
+
         public static GUIStyle Green
         {
             get
@@ -82,19 +85,6 @@ namespace SpellcastModFramework.UI
             _legendaryStyle.normal.textColor = new Color(1.0f, 0.82f, 0.2f);
 
             _initialized = true;
-        }
-
-        public static GUIStyle GetTierStyle(Framework.Modifiers.Tier tier)
-        {
-            EnsureInitialized();
-
-            if (tier.Equals(Framework.Modifiers.TierRegistry.Legendary))
-                return _legendaryStyle;
-
-            if (tier.Equals(Framework.Modifiers.TierRegistry.Rare))
-                return _rareStyle;
-
-            return _commonStyle;
         }
     }
 }

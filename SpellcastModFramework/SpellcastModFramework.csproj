@@ -25,6 +25,10 @@
 			<HintPath>..\lib\UnityEngine.UI.dll</HintPath>
 		</Reference>
 
+		<Reference Include="UnityEngine.TextRenderingModule">
+			<HintPath>..\lib\UnityEngine.TextRenderingModule.dll</HintPath>
+		</Reference>
+
 		<Reference Include="0Harmony">
 			<HintPath>..\lib\0Harmony.dll</HintPath>
 		</Reference>
