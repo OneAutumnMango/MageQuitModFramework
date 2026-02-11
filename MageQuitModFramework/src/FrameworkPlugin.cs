@@ -2,6 +2,7 @@ using BepInEx;
 using BepInEx.Logging;
 using UnityEngine;
 using MageQuitModFramework.UI;
+using MageQuitModFramework.Core;
 
 namespace MageQuitModFramework
 {
@@ -17,9 +18,9 @@ namespace MageQuitModFramework
         {
             Instance = this;
             Log = Logger;
-            Log.LogInfo("Spellcast Mod Framework initialized");
+            Log.LogInfo("MageQuit Mod Framework initialized");
 
-            var menuObj = new GameObject("SpellcastModMenu");
+            var menuObj = new GameObject("MageQuitModMenu");
             DontDestroyOnLoad(menuObj);
             _modMenu = menuObj.AddComponent<DynamicModMenu>();
             _modMenu.Initialize();

@@ -32,17 +32,12 @@ namespace MageQuitModFramework.Tests.Framework.Loading
             }
         }
 
+        private ModuleManager _moduleManager;
+
         public ModuleManagerTests()
         {
-            ModuleManager.Clear();
-        }
-
-        [Fact]
-        public void Initialize_SetsHarmonyInstance()
-        {
             var harmony = new Harmony("test.harmony");
-
-            ModuleManager.Initialize(harmony);
+            _moduleManager = new ModuleManager(harmony);
         }
 
         [Fact]
@@ -50,9 +45,9 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         {
             var module = new TestModule("TestMod");
 
-            ModuleManager.RegisterModule(module);
+            _moduleManager.RegisterModule(module);
 
-            var moduleNames = ModuleManager.GetAllModuleNames();
+            var moduleNames = _moduleManager.GetAllModuleNames();
             Assert.Contains("TestMod", moduleNames);
         }
 
@@ -62,10 +57,10 @@ namespace MageQuitModFramework.Tests.Framework.Loading
             var module1 = new TestModule("TestMod");
             var module2 = new TestModule("TestMod");
 
-            ModuleManager.RegisterModule(module1);
-            ModuleManager.RegisterModule(module2);
+            _moduleManager.RegisterModule(module1);
+            _moduleManager.RegisterModule(module2);
 
-            var moduleCount = ModuleManager.GetAllModuleNames().Count();
+            var moduleCount = _moduleManager.GetAllModuleNames().Count();
             Assert.Equal(1, moduleCount);
         }
 
@@ -73,9 +68,9 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         public void LoadModule_ReturnsTrue_WhenModuleExists()
         {
             var module = new TestModule("TestMod");
-            ModuleManager.RegisterModule(module);
+            _moduleManager.RegisterModule(module);
 
-            var result = ModuleManager.LoadModule("TestMod");
+            var result = _moduleManager.LoadModule("TestMod");
 
             Assert.True(result);
         }
@@ -83,7 +78,7 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         [Fact]
         public void LoadModule_ReturnsFalse_WhenModuleDoesNotExist()
         {
-            var result = ModuleManager.LoadModule("NonExistent");
+            var result = _moduleManager.LoadModule("NonExistent");
 
             Assert.False(result);
         }
@@ -92,10 +87,10 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         public void LoadModule_CallsModuleLoadMethod()
         {
             var module = new TestModule("TestMod");
-            ModuleManager.RegisterModule(module);
+            _moduleManager.RegisterModule(module);
             var expectedLoadCount = 1;
 
-            ModuleManager.LoadModule("TestMod");
+            _moduleManager.LoadModule("TestMod");
 
             Assert.Equal(expectedLoadCount, module.LoadCount);
         }
@@ -104,9 +99,9 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         public void LoadModule_SetsIsLoadedToTrue()
         {
             var module = new TestModule("TestMod");
-            ModuleManager.RegisterModule(module);
+            _moduleManager.RegisterModule(module);
 
-            ModuleManager.LoadModule("TestMod");
+            _moduleManager.LoadModule("TestMod");
 
             Assert.True(module.IsLoaded);
         }
@@ -115,10 +110,10 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         public void UnloadModule_ReturnsTrue_WhenModuleExists()
         {
             var module = new TestModule("TestMod");
-            ModuleManager.RegisterModule(module);
-            ModuleManager.LoadModule("TestMod");
+            _moduleManager.RegisterModule(module);
+            _moduleManager.LoadModule("TestMod");
 
-            var result = ModuleManager.UnloadModule("TestMod");
+            var result = _moduleManager.UnloadModule("TestMod");
 
             Assert.True(result);
         }
@@ -126,7 +121,7 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         [Fact]
         public void UnloadModule_ReturnsFalse_WhenModuleDoesNotExist()
         {
-            var result = ModuleManager.UnloadModule("NonExistent");
+            var result = _moduleManager.UnloadModule("NonExistent");
 
             Assert.False(result);
         }
@@ -135,11 +130,11 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         public void UnloadModule_CallsModuleUnloadMethod()
         {
             var module = new TestModule("TestMod");
-            ModuleManager.RegisterModule(module);
-            ModuleManager.LoadModule("TestMod");
+            _moduleManager.RegisterModule(module);
+            _moduleManager.LoadModule("TestMod");
             var expectedUnloadCount = 1;
 
-            ModuleManager.UnloadModule("TestMod");
+            _moduleManager.UnloadModule("TestMod");
 
             Assert.Equal(expectedUnloadCount, module.UnloadCount);
         }
@@ -148,10 +143,10 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         public void UnloadModule_SetsIsLoadedToFalse()
         {
             var module = new TestModule("TestMod");
-            ModuleManager.RegisterModule(module);
-            ModuleManager.LoadModule("TestMod");
+            _moduleManager.RegisterModule(module);
+            _moduleManager.LoadModule("TestMod");
 
-            ModuleManager.UnloadModule("TestMod");
+            _moduleManager.UnloadModule("TestMod");
 
             Assert.False(module.IsLoaded);
         }
@@ -160,10 +155,10 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         public void IsModuleLoaded_ReturnsTrue_WhenModuleIsLoaded()
         {
             var module = new TestModule("TestMod");
-            ModuleManager.RegisterModule(module);
-            ModuleManager.LoadModule("TestMod");
+            _moduleManager.RegisterModule(module);
+            _moduleManager.LoadModule("TestMod");
 
-            var result = ModuleManager.IsModuleLoaded("TestMod");
+            var result = _moduleManager.IsModuleLoaded("TestMod");
 
             Assert.True(result);
         }
@@ -172,9 +167,9 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         public void IsModuleLoaded_ReturnsFalse_WhenModuleIsNotLoaded()
         {
             var module = new TestModule("TestMod");
-            ModuleManager.RegisterModule(module);
+            _moduleManager.RegisterModule(module);
 
-            var result = ModuleManager.IsModuleLoaded("TestMod");
+            var result = _moduleManager.IsModuleLoaded("TestMod");
 
             Assert.False(result);
         }
@@ -182,7 +177,7 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         [Fact]
         public void IsModuleLoaded_ReturnsFalse_WhenModuleDoesNotExist()
         {
-            var result = ModuleManager.IsModuleLoaded("NonExistent");
+            var result = _moduleManager.IsModuleLoaded("NonExistent");
 
             Assert.False(result);
         }
@@ -190,7 +185,7 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         [Fact]
         public void GetAllModuleNames_ReturnsEmptyList_WhenNoModulesRegistered()
         {
-            var moduleNames = ModuleManager.GetAllModuleNames();
+            var moduleNames = _moduleManager.GetAllModuleNames();
 
             Assert.Empty(moduleNames);
         }
@@ -198,12 +193,12 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         [Fact]
         public void GetAllModuleNames_ReturnsAllRegisteredModules()
         {
-            ModuleManager.RegisterModule(new TestModule("Mod1"));
-            ModuleManager.RegisterModule(new TestModule("Mod2"));
-            ModuleManager.RegisterModule(new TestModule("Mod3"));
+            _moduleManager.RegisterModule(new TestModule("Mod1"));
+            _moduleManager.RegisterModule(new TestModule("Mod2"));
+            _moduleManager.RegisterModule(new TestModule("Mod3"));
             var expectedCount = 3;
 
-            var moduleNames = ModuleManager.GetAllModuleNames().ToList();
+            var moduleNames = _moduleManager.GetAllModuleNames().ToList();
 
             Assert.Equal(expectedCount, moduleNames.Count);
             Assert.Contains("Mod1", moduleNames);
@@ -217,14 +212,14 @@ namespace MageQuitModFramework.Tests.Framework.Loading
             var module1 = new TestModule("Mod1");
             var module2 = new TestModule("Mod2");
             var module3 = new TestModule("Mod3");
-            ModuleManager.RegisterModule(module1);
-            ModuleManager.RegisterModule(module2);
-            ModuleManager.RegisterModule(module3);
-            ModuleManager.LoadModule("Mod1");
-            ModuleManager.LoadModule("Mod3");
+            _moduleManager.RegisterModule(module1);
+            _moduleManager.RegisterModule(module2);
+            _moduleManager.RegisterModule(module3);
+            _moduleManager.LoadModule("Mod1");
+            _moduleManager.LoadModule("Mod3");
             var expectedCount = 2;
 
-            var loadedModules = ModuleManager.GetLoadedModuleNames().ToList();
+            var loadedModules = _moduleManager.GetLoadedModuleNames().ToList();
 
             Assert.Equal(expectedCount, loadedModules.Count);
             Assert.Contains("Mod1", loadedModules);
@@ -235,10 +230,10 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         [Fact]
         public void GetLoadedModuleNames_ReturnsEmptyList_WhenNoModulesLoaded()
         {
-            ModuleManager.RegisterModule(new TestModule("Mod1"));
-            ModuleManager.RegisterModule(new TestModule("Mod2"));
+            _moduleManager.RegisterModule(new TestModule("Mod1"));
+            _moduleManager.RegisterModule(new TestModule("Mod2"));
 
-            var loadedModules = ModuleManager.GetLoadedModuleNames();
+            var loadedModules = _moduleManager.GetLoadedModuleNames();
 
             Assert.Empty(loadedModules);
         }
@@ -246,12 +241,12 @@ namespace MageQuitModFramework.Tests.Framework.Loading
         [Fact]
         public void Clear_RemovesAllModules()
         {
-            ModuleManager.RegisterModule(new TestModule("Mod1"));
-            ModuleManager.RegisterModule(new TestModule("Mod2"));
+            _moduleManager.RegisterModule(new TestModule("Mod1"));
+            _moduleManager.RegisterModule(new TestModule("Mod2"));
 
-            ModuleManager.Clear();
+            _moduleManager.Clear();
 
-            var moduleNames = ModuleManager.GetAllModuleNames();
+            var moduleNames = _moduleManager.GetAllModuleNames();
             Assert.Empty(moduleNames);
         }
     }

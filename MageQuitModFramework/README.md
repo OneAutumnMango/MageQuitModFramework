@@ -1,14 +1,15 @@
-# Spellcast Mod Framework
+# MageQuit Mod Framework
 
 A BepInEx plugin framework for creating mods that modify spells and game mechanics. This framework provides a shared infrastructure that multiple mods can use without interfering with each other.
 
 ## Architecture
 
-The framework is compiled as a **standalone DLL** (`SpellcastModFramework.dll`) that:
+The framework is compiled as a **standalone DLL** (`MageQuitModFramework.dll`) that:
 - Runs as a BepInEx plugin itself
 - Provides shared services (UI, modification systems, helpers)
 - Allows multiple independent mods to register and coexist
 - Manages a unified mod menu accessible via **F5**
+- **Each mod maintains its own Harmony instance** for independent patch management
 
 ## For Mod Developers
 
@@ -18,29 +19,33 @@ The framework is compiled as a **standalone DLL** (`SpellcastModFramework.dll`) 
 
 2. **Add framework reference** in your `.csproj`:
 ```xml
-<Reference Include="SpellcastModFramework">
-  <HintPath>..\SpellcastModFramework\bin\Debug\net472\SpellcastModFramework.dll</HintPath>
+<Reference Include="MageQuitModFramework">
+  <HintPath>..\MageQuitModFramework\bin\Debug\net472\MageQuitModFramework.dll</HintPath>
 </Reference>
 ```
 
 3. **Add BepInDependency** to your plugin class:
 ```csharp
 using BepInEx;
-using SpellcastModFramework;
-using SpellcastModFramework.UI;
+using MageQuitModFramework;
+using MageQuitModFramework.UI;
+using MageQuitModFramework.Loading;
 
 [BepInPlugin("com.yourname.yourmod", "Your Mod Name", "1.0.0")]
-[BepInDependency("com.spellcast.modframework", BepInDependency.DependencyFlags.HardDependency)]
+[BepInDependency("com.magequit.modframework", BepInDependency.DependencyFlags.HardDependency)]
 public class YourModPlugin : BaseUnityPlugin
 {
+    private ModuleManager _moduleManager;
+    
     private void Awake()
     {
-        // Your mod initialization
-        RegisterWithFramework();
-    }
-
-    private void RegisterWithFramework()
-    {
+        // Each mod gets its own ModuleManager with its own Harmony instance
+        _moduleManager = ModManager.RegisterMod("Your Mod Name", Info.Metadata.GUID);
+        
+        // Register your modules (each gets its own Harmony instance too)
+        _moduleManager.RegisterModule(new YourModule());
+        
+        // Register UI
         ModUIRegistry.RegisterMod(
             "Your Mod Name",
             "Description of your mod",
@@ -49,11 +54,11 @@ public class YourModPlugin : BaseUnityPlugin
         );
     }
 
-    private void BuildModUI(Transform parent)
+    private void BuildModUI()
     {
-        // Build your mod's UI panel using UIComponents
-        var text = UIComponents.CreateText(parent, "Title", "My Settings", 16);
-        // Add buttons, sliders, etc.
+        // Build your mod's UI using UIComponents
+        UIComponents.Label("My Settings");
+        UIComponents.Button("Click Me");
     }
 }
 ```
@@ -62,7 +67,7 @@ public class YourModPlugin : BaseUnityPlugin
 
 #### UI Components
 ```csharp
-using SpellcastModFramework.UI;
+using MageQuitModFramework.UI;
 
 // Create UI elements in your mod menu panel
 UIComponents.CreateText(parent, "id", "text", fontSize);
@@ -73,7 +78,7 @@ UIComponents.CreateScrollView(parent, width, height);
 
 #### Spell Modification
 ```csharp
-using SpellcastModFramework.Core;
+using MageQuitModFramework.Core;
 
 // Modify spell table entries
 GameModificationHelpers.ModifySpellTableEntry(manager, SpellName.Fireball, spell =>
@@ -89,8 +94,8 @@ var value = GameModificationHelpers.GetPrivateField<float>(instance, "fieldName"
 
 #### Spell Modification System
 ```csharp
-using SpellcastModFramework.Core;
-using SpellcastModFramework.Modifiers;
+using MageQuitModFramework.Core;
+using MageQuitModFramework.Modifiers;
 
 // Initialize with default values (usually in a SpellManager.Awake patch)
 SpellModificationSystem.Initialize(defaultSpellTable, defaultClassAttributes);
@@ -105,7 +110,7 @@ SpellModificationSystem.ApplyModifiersToGame();
 
 #### Upgrade System
 ```csharp
-using SpellcastModFramework.Modifiers;
+using MageQuitModFramework.Modifiers;
 
 // Apply upgrades
 UpgradeSystem.ApplyUpgrade(option, isPositive: true);
@@ -115,6 +120,12 @@ var options = UpgradeSystem.GenerateUpgradeOptions(player, count: 10);
 ```
 
 ## How Multiple Mods Coexist
+
+### Harmony Instance Isolation
+- **Each mod creates its own Harmony instance** using `ModManager.RegisterMod(modName, modGuid)`
+- Each module within a mod gets its own sub-Harmony instance
+- Mods can unpatch their changes independently without affecting other mods
+- Follows Harmony best practices for multi-mod environments
 
 ### Mod Menu Integration
 - Each mod calls `ModUIRegistry.RegisterMod(...)` during initialization
@@ -145,36 +156,36 @@ SpellModificationSystem.TryUpdateModifier(SpellName.Fireball, "DAMAGE",
 
 ### Framework
 ```bash
-cd SpellcastModFramework
+cd MageQuitModFramework
 dotnet build
-# Output: bin/Debug/net472/SpellcastModFramework.dll
+# Output: bin/Debug/net472/MageQuitModFramework.dll
 ```
 
 ### Your Mod
 ```bash
 cd YourMod
 dotnet build
-# Ensure SpellcastModFramework.dll is in BepInEx/plugins before your mod loads
+# Ensure MageQuitModFramework.dll is in BepInEx/plugins before your mod loads
 ```
 
 ## Load Order
 
 BepInEx loads plugins alphabetically by GUID. The framework uses:
-- GUID: `com.spellcast.modframework` 
+- GUID: `com.magequit.modframework` 
 - This ensures it loads before most mods (starting with 'com.')
 - Use `BepInDependency` to enforce framework loads first
 
 ## Distribution
 
 When distributing your mod:
-1. **Include SpellcastModFramework.dll** in your release
+1. **Include MageQuitModFramework.dll** in your release
 2. Instruct users to place both DLLs in `BepInEx/plugins/`
 3. Users can run multiple framework-based mods simultaneously
 
 ## Example Project Structure
 
 ```
-SpellcastModFramework/          # Framework project
+MageQuitModFramework/          # Framework project
 ├── src/
 │   ├── FrameworkPlugin.cs      # Main plugin
 │   ├── Framework/
@@ -182,18 +193,18 @@ SpellcastModFramework/          # Framework project
 │   │   ├── UI/                 # UI components
 │   │   ├── Modifiers/          # Upgrade system
 │   │   └── Loading/            # Module system
-│   └── SpellcastModFramework.csproj
+│   └── MageQuitModFramework.csproj
 └── bin/Debug/net472/
-    └── SpellcastModFramework.dll
+    └── MageQuitModFramework.dll
 
 YourMod/                        # Your mod project
 ├── YourModPlugin.cs
-├── YourMod.csproj              # References SpellcastModFramework.dll
+├── YourMod.csproj              # References MageQuitModFramework.dll
 └── bin/Debug/net472/
     └── YourMod.dll
 
 BepInEx/plugins/                # Game plugins folder
-├── SpellcastModFramework.dll   # Framework loads first
+├── MageQuitModFramework.dll   # Framework loads first
 ├── ModA.dll                    # Mod A
 ├── ModB.dll                    # Mod B
 └── YourMod.dll                 # Your mod

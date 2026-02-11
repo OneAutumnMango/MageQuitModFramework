@@ -1,17 +1,17 @@
-# Spellcast Mod Framework
+# MageQuit Mod Framework
 
 A modding framework for MageQuit that enables easy spell modifications, upgrades, and custom UI.
 
 ## Structure
 
-- `SpellcastModFramework/` - The core framework DLL
+- `MageQuitModFramework/` - The core framework DLL
 - `ExampleMod/` - Example mod showing how to use the framework
 - `lib/` - Reference assemblies (BepInEx, Unity, game DLLs)
 
 ## Building
 
 ```bash
-dotnet build SpellcastModFramework/SpellcastModFramework.csproj
+dotnet build MageQuitModFramework/MageQuitModFramework.csproj
 dotnet build ExampleMod/ExampleMod.csproj
 ```
 

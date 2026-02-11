@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MageQuitModFramework.Core;
 
 namespace MageQuitModFramework.UI
 {
@@ -70,6 +71,20 @@ namespace MageQuitModFramework.UI
                             GUILayout.Space(5);
                         }
                         
+                        // Draw module toggles for this mod
+                        if (ModManager.TryGetModuleManager(modEntry.ModName, out var moduleManager))
+                        {
+                            var moduleNames = moduleManager.GetAllModuleNames().ToList();
+                            if (moduleNames.Count > 0)
+                            {
+                                foreach (var moduleName in moduleNames)
+                                {
+                                    UIComponents.DrawModuleToggle(modEntry.ModName, moduleName, moduleManager);
+                                }
+                                GUILayout.Space(10);
+                            }
+                        }
+                        
                         // Call IMGUI callback if available
                         if (modEntry.DrawIMGUI != null)
                         {
@@ -83,9 +98,6 @@ namespace MageQuitModFramework.UI
                             }
                         }
                         else
-                        {
-                            GUILayout.Label("No options available for this mod.");
-                        }
                         {
                             GUILayout.Label("No options available for this mod.");
                         }

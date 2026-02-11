@@ -25,19 +25,14 @@ namespace ExampleMod
             _harmony = new Harmony("com.example.spellmod");
             _harmony.PatchAll();
 
-            RegisterWithFramework();
-
-            _log.LogInfo("Example Mod loaded!");
-        }
-
-        private void RegisterWithFramework()
-        {
             ModUIRegistry.RegisterMod(
                 "Example Mod",
                 "A simple example mod demonstrating framework usage",
                 DrawModUI,
                 priority: 50
             );
+
+            _log.LogInfo("Example Mod loaded!");
         }
 
         private void DrawModUI()
@@ -72,8 +67,8 @@ namespace ExampleMod
                 // Example: Make fireball faster
                 GameModificationHelpers.ModifySpellTableEntry(__instance, SpellName.Fireball, spell =>
                 {
-                    spell.cooldown *= 0.75f;  // 25% faster cooldown
-                    spell.initialVelocity *= 1.2f;  // 20% faster projectile
+                    spell.cooldown *= 0.5f;  // 50% faster cooldown
+                    spell.initialVelocity *= 2f;  // 100% faster projectile
                     _log.LogInfo($"Modified Fireball: cooldown={spell.cooldown}, velocity={spell.initialVelocity}");
                 });
 

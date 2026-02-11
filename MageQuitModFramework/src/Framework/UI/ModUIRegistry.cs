@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using MageQuitModFramework.Loading;
+using MageQuitModFramework.Core;
 
 namespace MageQuitModFramework.UI
 {
