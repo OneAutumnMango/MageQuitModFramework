@@ -2,9 +2,10 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MageQuitModFramework.Core;
+using MageQuitModFramework.Spells;
+using MageQuitModFramework.Utilities;
 
-namespace MageQuitModFramework.Loading
+namespace MageQuitModFramework.Data
 {
     [HarmonyPatch(typeof(SpellManager), "Awake")]
     public static class GameDataInitializer

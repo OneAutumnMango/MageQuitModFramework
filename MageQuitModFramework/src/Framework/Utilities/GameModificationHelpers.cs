@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace MageQuitModFramework.Core
+namespace MageQuitModFramework.Utilities
 {
     public static class GameModificationHelpers
     {
@@ -162,7 +162,7 @@ namespace MageQuitModFramework.Core
         {
             foreach (SpellName name in Enum.GetValues(typeof(SpellName)))
             {
-                string fullTypeName = SpellModificationSystem.GetSpellObjectTypeName(name);
+                string fullTypeName = Spells.SpellModificationSystem.GetSpellObjectTypeName(name);
 
                 Type spellType = AppDomain.CurrentDomain.GetAssemblies()
                     .Select(a => a.GetType(fullTypeName))
@@ -203,7 +203,7 @@ namespace MageQuitModFramework.Core
 
             foreach (SpellName name in Enum.GetValues(typeof(SpellName)))
             {
-                string fullTypeName = SpellModificationSystem.GetSpellObjectTypeName(name);
+                string fullTypeName = Spells.SpellModificationSystem.GetSpellObjectTypeName(name);
                 Type spellType = AppDomain.CurrentDomain.GetAssemblies()
                     .Select(a => a.GetType(fullTypeName, false))
                     .FirstOrDefault(t => t != null);

@@ -1,8 +1,7 @@
 using HarmonyLib;
 using System.Collections.Generic;
-using MageQuitModFramework.Loading;
 
-namespace MageQuitModFramework.Core
+namespace MageQuitModFramework.Modding
 {
     public class ModEntry
     {

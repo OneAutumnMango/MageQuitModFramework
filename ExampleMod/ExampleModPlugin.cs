@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using MageQuitModFramework;
 using MageQuitModFramework.UI;
-using MageQuitModFramework.Core;
+using MageQuitModFramework.Utilities;
 
 namespace ExampleMod
 {

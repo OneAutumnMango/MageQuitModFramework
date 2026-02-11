@@ -1,5 +1,5 @@
 using Xunit;
-using MageQuitModFramework.Loading;
+using MageQuitModFramework.Modding;
 using HarmonyLib;
 using System.Linq;
 

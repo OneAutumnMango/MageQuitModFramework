@@ -2,7 +2,7 @@ using HarmonyLib;
 using System;
 using System.Reflection;
 
-namespace MageQuitModFramework.Loading
+namespace MageQuitModFramework.Modding
 {
     public interface IModModule
     {

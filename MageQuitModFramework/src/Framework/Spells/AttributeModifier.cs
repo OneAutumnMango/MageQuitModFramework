@@ -1,6 +1,6 @@
 using System;
 
-namespace MageQuitModFramework.Core
+namespace MageQuitModFramework.Spells
 {
     public class AttributeModifier(float baseValue, float mult = 1f)
     {

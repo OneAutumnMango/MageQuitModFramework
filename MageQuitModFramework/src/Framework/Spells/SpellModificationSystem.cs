@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace MageQuitModFramework.Core
+namespace MageQuitModFramework.Spells
 {
     public static class SpellModificationSystem
     {
@@ -110,7 +110,7 @@ namespace MageQuitModFramework.Core
 
                     for (int i = 0; i < spell.additionalCasts.Length; i++)
                     {
-                        var subspell = Loading.GameDataInitializer.DefaultSpellTable[name].additionalCasts[i];  // SpellMod table doesnt store additional casts
+                        var subspell = Data.GameDataInitializer.DefaultSpellTable[name].additionalCasts[i];  // SpellMod table doesnt store additional casts
                         spell.additionalCasts[i].cooldown        = subspell.cooldown        * mods.cooldown.Mult;
                         spell.additionalCasts[i].initialVelocity = subspell.initialVelocity * mods.initialVelocity.Mult;
                     }
@@ -134,7 +134,7 @@ namespace MageQuitModFramework.Core
 
                     for (int i = 0; i < playerCooldown.subCooldowns.Length; i++)
                     {
-                        var subspell = Loading.GameDataInitializer.DefaultSpellTable[name].additionalCasts[i];  // SpellMod table doesnt store additional casts
+                        var subspell = Data.GameDataInitializer.DefaultSpellTable[name].additionalCasts[i];  // SpellMod table doesnt store additional casts
                         playerCooldown.subCooldowns[i].cooldown = subspell.cooldown * mods.cooldown.Mult;
                     }
                 }

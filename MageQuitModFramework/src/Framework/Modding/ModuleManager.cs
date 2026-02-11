@@ -2,7 +2,7 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MageQuitModFramework.Loading
+namespace MageQuitModFramework.Modding
 {
     public class ModuleManager
     {

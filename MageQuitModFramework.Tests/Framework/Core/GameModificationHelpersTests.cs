@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection.Emit;
 using Xunit;
 using HarmonyLib;
-using MageQuitModFramework.Core;
+using MageQuitModFramework.Utilities;
 
 namespace MageQuitModFramework.Tests
 {

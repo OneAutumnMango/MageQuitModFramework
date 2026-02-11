@@ -2,7 +2,7 @@ using BepInEx;
 using BepInEx.Logging;
 using UnityEngine;
 using MageQuitModFramework.UI;
-using MageQuitModFramework.Core;
+using MageQuitModFramework.Modding;
 
 namespace MageQuitModFramework
 {

@@ -1,5 +1,5 @@
 using Xunit;
-using MageQuitModFramework.Core;
+using MageQuitModFramework.Spells;
 using System.Collections.Generic;
 
 namespace MageQuitModFramework.Tests
