@@ -77,11 +77,18 @@ namespace MageQuitModFramework.Modding
             return false;
         }
 
+        /// <summary>
+        /// Gets all registered mod entries.
+        /// </summary>
+        /// <returns>Collection of all registered mods</returns>
         public static IEnumerable<ModEntry> GetAllMods()
         {
             return _mods.Values;
         }
 
+        /// <summary>
+        /// Clears all registered mods from the manager.
+        /// </summary>
         public static void Clear()
         {
             _mods.Clear();

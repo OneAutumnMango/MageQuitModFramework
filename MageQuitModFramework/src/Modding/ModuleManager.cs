@@ -110,6 +110,9 @@ namespace MageQuitModFramework.Modding
             return _modules.Where(kvp => kvp.Value.IsLoaded).Select(kvp => kvp.Key);
         }
 
+        /// <summary>
+        /// Clears all registered modules from this manager.
+        /// </summary>
         public void Clear()
         {
             _modules.Clear();

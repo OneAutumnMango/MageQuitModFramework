@@ -3,15 +3,22 @@ using System;
 
 namespace MageQuitModFramework.UI
 {
+    /// <summary>
+    /// Provides pre-configured IMGUI styles and colors for consistent UI appearance across mods.
+    /// </summary>
     public static class StyleManager
     {
         private static GUIStyle _green, _red;
         private static GUIStyle _white, _purple, _gold;
         private static bool _initialized = false;
 
+        /// <summary>Dark background color for UI panels.</summary>
         public static Color BackgroundColor => new Color(0.1f, 0.1f, 0.1f, 0.9f);
+        
+        /// <summary>Slightly lighter panel color for nested containers.</summary>
         public static Color PanelColor => new Color(0.2f, 0.2f, 0.2f, 0.95f);
 
+        /// <summary>Green colored button style for positive actions.</summary>
         public static GUIStyle Green
         {
             get
@@ -21,6 +28,7 @@ namespace MageQuitModFramework.UI
             }
         }
 
+        /// <summary>Red colored button style for negative actions or warnings.</summary>
         public static GUIStyle Red
         {
             get
@@ -30,6 +38,7 @@ namespace MageQuitModFramework.UI
             }
         }
 
+        /// <summary>White colored button style for neutral actions.</summary>
         public static GUIStyle White
         {
             get
@@ -39,6 +48,7 @@ namespace MageQuitModFramework.UI
             }
         }
 
+        /// <summary>Purple colored button style for special actions.</summary>
         public static GUIStyle Purple
         {
             get
@@ -48,6 +58,7 @@ namespace MageQuitModFramework.UI
             }
         }
 
+        /// <summary>Gold colored button style for important or premium actions.</summary>
         public static GUIStyle Gold
         {
             get
@@ -57,6 +68,10 @@ namespace MageQuitModFramework.UI
             }
         }
 
+        /// <summary>
+        /// Ensures all GUIStyles are initialized before use.
+        /// Called automatically when accessing style properties.
+        /// </summary>
         public static void EnsureInitialized()
         {
             if (_initialized) return;

@@ -133,16 +133,28 @@ namespace MageQuitModFramework.UI
             GUILayout.EndHorizontal();
         }
 
+        /// <summary>
+        /// Begins a vertical layout group.
+        /// </summary>
         public static void BeginVertical()
         {
             GUILayout.BeginVertical();
         }
 
+        /// <summary>
+        /// Ends the current vertical layout group.
+        /// </summary>
         public static void EndVertical()
         {
             GUILayout.EndVertical();
         }
 
+        /// <summary>
+        /// Draws a box with specified dimensions.
+        /// </summary>
+        /// <param name="text">Text content for the box</param>
+        /// <param name="width">Width in pixels</param>
+        /// <param name="height">Height in pixels</param>
         public static void Box(string text, float width, float height)
         {
             GUILayout.Box(text, GUILayout.Width(width), GUILayout.Height(height));

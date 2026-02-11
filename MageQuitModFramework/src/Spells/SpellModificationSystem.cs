@@ -105,6 +105,13 @@ namespace MageQuitModFramework.Spells
             return mods.TryGetModifier(attribute, out modifier);
         }
 
+        /// <summary>
+        /// Retrieves the default (base) value for a spell attribute before modifiers are applied.
+        /// </summary>
+        /// <param name="name">The spell to query</param>
+        /// <param name="attribute">The attribute name</param>
+        /// <param name="value">Output parameter for the base value if found</param>
+        /// <returns>True if the attribute exists, false otherwise</returns>
         public static bool TryGetDefaultValue(SpellName name, string attribute, out float value)
         {
             value = 0;
@@ -116,6 +123,13 @@ namespace MageQuitModFramework.Spells
             return false;
         }
 
+        /// <summary>
+        /// Retrieves the current multiplier for a spell attribute.
+        /// </summary>
+        /// <param name="name">The spell to query</param>
+        /// <param name="attribute">The attribute name</param>
+        /// <param name="mult">Output parameter for the multiplier if found (default 1.0)</param>
+        /// <returns>True if the attribute exists, false otherwise</returns>
         public static bool TryGetMultiplier(SpellName name, string attribute, out float mult)
         {
             mult = 1f;
@@ -127,6 +141,9 @@ namespace MageQuitModFramework.Spells
             return false;
         }
 
+        /// <summary>
+        /// Resets all multipliers across all spells to 1.0, keeping base values intact.
+        /// </summary>
         public static void ResetAllMultipliers()
         {
             foreach (var mods in SpellModifierTable.Values)
@@ -184,12 +201,22 @@ namespace MageQuitModFramework.Spells
             }
         }
 
+        /// <summary>
+        /// Applies all registered modifiers to the game's spell table and player cooldowns.
+        /// </summary>
+        /// <param name="spellManager">The game's spell manager instance</param>
+        /// <param name="player">The player to apply cooldown modifiers to</param>
         public static void ApplyModifiersToGame(SpellManager spellManager, Player player)
         {
             ApplyModifiersToSpellTable(spellManager);
             ApplyModifiersToPlayer(player);
         }
 
+        /// <summary>
+        /// Gets the fully qualified type name for a spell's SpellObject class.
+        /// </summary>
+        /// <param name="name">The spell name</param>
+        /// <returns>The type name string for reflection-based access</returns>
         public static string GetSpellObjectTypeName(SpellName name)
         {
             return name switch
@@ -202,6 +229,11 @@ namespace MageQuitModFramework.Spells
             };
         }
 
+        /// <summary>
+        /// Converts a SpellObject type name back to its SpellName enum value.
+        /// </summary>
+        /// <param name="typeName">The type name (e.g., "FireBallObject")</param>
+        /// <returns>The corresponding SpellName, or default if not found</returns>
         public static SpellName? GetSpellNameFromTypeName(string typeName)
         {
             return typeName switch

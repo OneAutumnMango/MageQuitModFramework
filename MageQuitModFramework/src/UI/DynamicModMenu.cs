@@ -124,21 +124,33 @@ namespace MageQuitModFramework.UI
             GUI.DragWindow(new Rect(0, 0, 500, 20));
         }
 
+        /// <summary>
+        /// Clears the expanded state of all mod entries, causing them to collapse.
+        /// </summary>
         public void RefreshModList()
         {
             _modExpanded.Clear();
         }
 
+        /// <summary>
+        /// Shows the mod menu.
+        /// </summary>
         public void Show()
         {
             _isVisible = true;
         }
 
+        /// <summary>
+        /// Hides the mod menu.
+        /// </summary>
         public void Hide()
         {
             _isVisible = false;
         }
 
+        /// <summary>
+        /// Toggles the mod menu visibility.
+        /// </summary>
         public void Toggle()
         {
             _isVisible = !_isVisible;
