@@ -1,219 +1,211 @@
 # MageQuit Mod Framework
 
-A BepInEx plugin framework for creating mods that modify spells and game mechanics. This framework provides a shared infrastructure that multiple mods can use without interfering with each other.
+A BepInEx plugin framework for creating MageQuit mods with spell modifications, custom modules, and UI integration.
 
 ## Architecture
 
-The framework is compiled as a **standalone DLL** (`MageQuitModFramework.dll`) that:
-- Runs as a BepInEx plugin itself
-- Provides shared services (UI, modification systems, helpers)
-- Allows multiple independent mods to register and coexist
-- Manages a unified mod menu accessible via **F5**
-- **Each mod maintains its own Harmony instance** for independent patch management
+The framework is a **standalone BepInEx plugin** (`MageQuitModFramework.dll`) that provides:
+- **Spell modification system** with Base × Mult modifiers
+- **Module lifecycle management** for organized mod structure
+- **Game data initialization** with event hooks  
+- **Dynamic mod menu** (F5) for runtime configuration
+- **UI component registry** for custom mod interfaces
+- **Helper utilities** for common Harmony patterns
 
-## For Mod Developers
+## Creating Mods with the Framework
 
-### Creating a New Mod
+### 1. Create a BepInEx Plugin
 
-1. **Create a new C# project** targeting `.NET Framework 4.7.2`
-
-2. **Add framework reference** in your `.csproj`:
-```xml
-<Reference Include="MageQuitModFramework">
-  <HintPath>..\MageQuitModFramework\bin\Debug\net472\MageQuitModFramework.dll</HintPath>
-</Reference>
-```
-
-3. **Add BepInDependency** to your plugin class:
 ```csharp
 using BepInEx;
-using MageQuitModFramework;
+using HarmonyLib;
+using MageQuitModFramework.Modding;
 using MageQuitModFramework.UI;
-using MageQuitModFramework.Loading;
 
-[BepInPlugin("com.yourname.yourmod", "Your Mod Name", "1.0.0")]
-[BepInDependency("com.magequit.modframework", BepInDependency.DependencyFlags.HardDependency)]
+[BepInPlugin("com.yourname.yourmod", "YourMod", "1.0.0")]
+[BepInDependency("com.magequit.modframework")]
 public class YourModPlugin : BaseUnityPlugin
 {
-    private ModuleManager _moduleManager;
-    
+    private Harmony _harmony;
+
     private void Awake()
     {
-        // Each mod gets its own ModuleManager with its own Harmony instance
-        _moduleManager = ModManager.RegisterMod("Your Mod Name", Info.Metadata.GUID);
+        _harmony = new Harmony(Info.Metadata.GUID);
         
-        // Register your modules (each gets its own Harmony instance too)
-        _moduleManager.RegisterModule(new YourModule());
+        // Register modules
+        ModuleManager.RegisterModule(new YourModule());
+        ModuleManager.LoadModule("YourModule");
         
-        // Register UI
+        // Register UI (optional)
         ModUIRegistry.RegisterMod(
-            "Your Mod Name",
-            "Description of your mod",
-            BuildModUI,
-            priority: 100  // Lower = appears first in menu
+            "YourMod",
+            () => DrawUI()
         );
     }
 
-    private void BuildModUI()
+    private void DrawUI()
     {
-        // Build your mod's UI using UIComponents
-        UIComponents.Label("My Settings");
-        UIComponents.Button("Click Me");
+        GUILayout.Label("YourMod Settings");
+        if (GUILayout.Button("Action"))
+        {
+            // Your code
+        }
     }
 }
 ```
 
-### Available Framework Features
+### 2. Create a Module
 
-#### UI Components
+```csharp
+using MageQuitModFramework.Modding;
+using HarmonyLib;
+
+public class YourModule : BaseModule
+{
+    public override string ModuleName => "YourModule";
+
+    protected override void OnLoad(Harmony harmony)
+    {
+        harmony.PatchAll(typeof(YourPatches));
+    }
+
+    protected override void OnUnload(Harmony harmony)
+    {
+        harmony.UnpatchSelf();
+    }
+}
+```
+
+### 3. Add Framework Reference
+
+In your `.csproj`:
+```xml
+<Reference Include="MageQuitModFramework">
+  <HintPath>path\to\MageQuitModFramework.dll</HintPath>
+</Reference>
+```
+
+## Framework Features
+
+### Spell Modification System
+```csharp
+using MageQuitModFramework.Spells;
+using MageQuitModFramework.Data;
+
+// Wait for game data
+GameDataInitializer.OnGameDataLoaded += () =>
+{
+    // Modify spell attribute
+    SpellModificationSystem.TryUpdateModifier(
+        SpellName.Fireball,
+        "DAMAGE",
+        0.5f  // +50% damage
+    );
+
+    // Apply to game
+    var player = GetLocalPlayer();
+    SpellModificationSystem.ApplyModifiersToGame(
+        Globals.spell_manager,
+        player
+    );
+};
+```
+
+### Game Data Initialization
+```csharp
+using MageQuitModFramework.Data;
+
+// Check if loaded
+if (GameDataInitializer.IsLoaded)
+    Initialize();
+else
+    GameDataInitializer.OnGameDataLoaded += Initialize;
+```
+
+### Helper Utilities
+```csharp
+using MageQuitModFramework.Utilities;
+
+// Modify spell table
+GameModificationHelpers.ModifySpellTableEntry(
+    Globals.spell_manager,
+    SpellName.Fireball,
+    spell => spell.cooldown *= 0.5f
+);
+
+// Access private fields
+GameModificationHelpers.SetPrivateField(
+    instance, "fieldName", value
+);
+var val = GameModificationHelpers.GetPrivateField<float>(
+    instance, "fieldName"
+);
+
+// IL patching
+var modified = GameModificationHelpers.ReplaceFloatConstant(
+    instructions, 5.0f, 3.5f
+);
+```
+
+### UI Registration
 ```csharp
 using MageQuitModFramework.UI;
 
-// Create UI elements in your mod menu panel
-UIComponents.CreateText(parent, "id", "text", fontSize);
-UIComponents.CreateButton(parent, "id", "text", onClick);
-UIComponents.CreatePanel(parent, "id", width, height);
-UIComponents.CreateScrollView(parent, width, height);
+ModUIRegistry.RegisterMod(
+    "MyMod",
+    () =>
+    {
+        GUILayout.Label("Settings");
+        if (GUILayout.Button("Action"))
+        {
+            // Your code
+        }
+    }
+);
 ```
 
-#### Spell Modification
-```csharp
-using MageQuitModFramework.Core;
+## Key Concepts
 
-// Modify spell table entries
-GameModificationHelpers.ModifySpellTableEntry(manager, SpellName.Fireball, spell =>
-{
-    spell.cooldown *= 0.5f;
-    spell.damage *= 1.5f;
-});
+### Module System
+Modules provide organized lifecycle management:
+- `OnLoad(Harmony)` - Called when module loads
+- `OnUnload(Harmony)` - Called when module unloads
+- Each module can be loaded/unloaded independently
 
-// Access private fields
-GameModificationHelpers.SetPrivateField<float>(instance, "fieldName", value);
-var value = GameModificationHelpers.GetPrivateField<float>(instance, "fieldName");
-```
+### Spell Modifiers
+Base × Mult pattern for spell attributes:
+- `Base` - Original game value (immutable)
+- `Mult` - Multiplier (starts at 1.0)
+- `Value` - Computed as `Base × Mult`
+- Use `AddMultiplier(0.5f)` to add +50% (Mult becomes 1.5)
 
-#### Spell Modification System
-```csharp
-using MageQuitModFramework.Core;
-using MageQuitModFramework.Modifiers;
-
-// Initialize with default values (usually in a SpellManager.Awake patch)
-SpellModificationSystem.Initialize(defaultSpellTable, defaultClassAttributes);
-
-// Update modifiers
-SpellModificationSystem.TryUpdateModifier(SpellName.Fireball, "DAMAGE", 
-    mod => mod.AddBase(10f).AddMult(0.5f));
-
-// Apply all modifications to the game
-SpellModificationSystem.ApplyModifiersToGame();
-```
-
-#### Upgrade System
-```csharp
-using MageQuitModFramework.Modifiers;
-
-// Apply upgrades
-UpgradeSystem.ApplyUpgrade(option, isPositive: true);
-
-// Get available upgrades for current spell loadout
-var options = UpgradeSystem.GenerateUpgradeOptions(player, count: 10);
-```
-
-## How Multiple Mods Coexist
-
-### Harmony Instance Isolation
-- **Each mod creates its own Harmony instance** using `ModManager.RegisterMod(modName, modGuid)`
-- Each module within a mod gets its own sub-Harmony instance
-- Mods can unpatch their changes independently without affecting other mods
-- Follows Harmony best practices for multi-mod environments
-
-### Mod Menu Integration
-- Each mod calls `ModUIRegistry.RegisterMod(...)` during initialization
-- The framework maintains a **static registry** accessible across all assemblies
-- Press **F5** to open the mod menu showing all registered mods
-- Each mod entry expands to show that mod's custom UI panel
-
-### Modification Isolation
-- Each mod modifies spell data independently
-- The `SpellModificationSystem` accumulates modifications from all mods
-- Modifications are applied cumulatively (Base + Multiplier pattern)
-- No conflicts between mods modifying the same spells
-
-### Example: Two Mods Modifying Fireball
-```csharp
-// Mod A
-SpellModificationSystem.TryUpdateModifier(SpellName.Fireball, "DAMAGE",
-    mod => mod.AddBase(10f));  // +10 base damage
-
-// Mod B  
-SpellModificationSystem.TryUpdateModifier(SpellName.Fireball, "DAMAGE",
-    mod => mod.AddMult(0.5f));  // +50% damage multiplier
-
-// Result: (OriginalDamage + 10) * 1.5
-```
+### Dynamic Mod Menu
+- Press **F5** in-game to toggle
+- Shows all registered mods
+- Each mod can provide custom UI
+- Managed by `ModUIRegistry`
 
 ## Building
 
-### Framework
 ```bash
+# Framework
 cd MageQuitModFramework
 dotnet build
 # Output: bin/Debug/net472/MageQuitModFramework.dll
-```
 
-### Your Mod
-```bash
+# Your mod
 cd YourMod
 dotnet build
-# Ensure MageQuitModFramework.dll is in BepInEx/plugins before your mod loads
 ```
 
-## Load Order
+## Installation
 
-BepInEx loads plugins alphabetically by GUID. The framework uses:
-- GUID: `com.magequit.modframework` 
-- This ensures it loads before most mods (starting with 'com.')
-- Use `BepInDependency` to enforce framework loads first
+1. Copy `MageQuitModFramework.dll` to `BepInEx/plugins/`
+2. Copy your mod DLL to `BepInEx/plugins/`
+3. Launch game - framework loads automatically via `BepInDependency`
 
-## Distribution
+## Documentation
 
-When distributing your mod:
-1. **Include MageQuitModFramework.dll** in your release
-2. Instruct users to place both DLLs in `BepInEx/plugins/`
-3. Users can run multiple framework-based mods simultaneously
+See [src/README.md](src/README.md) for detailed API documentation and examples.
 
-## Example Project Structure
-
-```
-MageQuitModFramework/          # Framework project
-├── src/
-│   ├── FrameworkPlugin.cs      # Main plugin
-│   ├── Framework/
-│   │   ├── Core/               # Spell modification
-│   │   ├── UI/                 # UI components
-│   │   ├── Modifiers/          # Upgrade system
-│   │   └── Loading/            # Module system
-│   └── MageQuitModFramework.csproj
-└── bin/Debug/net472/
-    └── MageQuitModFramework.dll
-
-YourMod/                        # Your mod project
-├── YourModPlugin.cs
-├── YourMod.csproj              # References MageQuitModFramework.dll
-└── bin/Debug/net472/
-    └── YourMod.dll
-
-BepInEx/plugins/                # Game plugins folder
-├── MageQuitModFramework.dll   # Framework loads first
-├── ModA.dll                    # Mod A
-├── ModB.dll                    # Mod B
-└── YourMod.dll                 # Your mod
-```
-
-## API Documentation
-
-See [QUICK_REFERENCE.md](src/Framework/QUICK_REFERENCE.md) for detailed API documentation.
-
-## License
-
-MIT - feel free to use in your own mods!
+See [src/QUICK_REFERENCE.md](src/QUICK_REFERENCE.md) for quick reference guide.

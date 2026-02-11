@@ -2,28 +2,13 @@
 
 ## Common Tasks
 
-### Modify a Spell Attribute
+### Create a Module
 
 ```csharp
-SpellModificationSystem.TryUpdateModifier(
-    SpellName.Fireball,
-    "DAMAGE",
-    0.5f  // +50% additive to multiplier
-);
-
-SpellModificationSystem.ApplyModifiersToGame(
-    Globals.spell_manager,
-    localPlayer
-);
-```
-
-### Create a Simple Module
-
-```csharp
-using BalancePatch.Framework.Loading;
+using MageQuitModFramework.Modding;
 using HarmonyLib;
 
-public class MyMod : BaseModModule
+public class MyMod : BaseModule
 {
     public override string ModuleName => "MyMod";
 
@@ -34,46 +19,92 @@ public class MyMod : BaseModModule
 
     protected override void OnUnload(Harmony harmony)
     {
-        harmony.UnpatchAll(ModuleName);
+        harmony.UnpatchSelf();
     }
 }
 ```
 
-### Generate Upgrades
+### Modify Spell Attributes
 
 ```csharp
-var player = PlayerManager.players.Values.FirstOrDefault(p => p.localPlayerNumber >= 0);
-var spells = player.cooldowns.Keys.ToList();
+using MageQuitModFramework.Spells;
+using MageQuitModFramework.Data;
 
-var upgrades = UpgradeSystem.GenerateUpgradeOptions(
-    spells,
-    count: 5,
-    rng: new Random()
-);
-```
-
-### Apply an Upgrade
-
-```csharp
-UpgradeSystem.ApplyUpgrade(upgrade, isPositive: true);
-
-// Then apply to game
-SpellModificationSystem.ApplyModifiersToGame(
-    Globals.spell_manager,
-    localPlayer
-);
-```
-
-### Replace Float in IL
-
-```csharp
-[HarmonyTranspiler]
-static IEnumerable<CodeInstruction> MyPatch(IEnumerable<CodeInstruction> instructions)
+if (GameDataInitializer.IsLoaded)
 {
+    SpellModificationSystem.TryUpdateModifier(
+        SpellName.Fireball,
+        "DAMAGE",
+        0.5f  // +50% (additive to multiplier)
+    );
+
+    var player = GetLocalPlayer();
+    SpellModificationSystem.ApplyModifiersToGame(
+        Globals.spell_manager,
+        player
+    );
+}
+```
+
+### Hook into Game Data Loading
+
+```csharp
+using MageQuitModFramework.Data;
+
+protected override void OnLoad(Harmony harmony)
+{
+    if (GameDataInitializer.IsLoaded)
+        Initialize();
+    else
+        GameDataInitializer.OnGameDataLoaded += Initialize;
+}
+
+private void Initialize()
+{
+    // Apply modifications
+}
+```
+
+### Register Custom UI
+
+```csharp
+using MageQuitModFramework.UI;
+
+protected override void OnLoad(Harmony harmony)
+{
+    ModUIRegistry.RegisterMod(
+        ModuleName,
+        () => DrawUI()
+    );
+}
+
+private void DrawUI()
+{
+    GUILayout.Label("My Mod Settings");
+    if (GUILayout.Button("Action"))
+    {
+        // Your code
+    }
+}
+```
+
+### Replace Constants in IL
+
+```csharp
+using MageQuitModFramework.Utilities;
+
+[HarmonyTranspiler]
+static IEnumerable<CodeInstruction> MyPatch(
+    IEnumerable<CodeInstruction> instructions)
+{
+    // Replace float
     return GameModificationHelpers.ReplaceFloatConstant(
-        instructions,
-        oldValue: 4.7f,
-        newValue: 3.5f
+        instructions, 4.7f, 3.5f
+    );
+    
+    // Replace int
+    return GameModificationHelpers.ReplaceIntConstant(
+        instructions, 5, 3
     );
 }
 ```
@@ -81,6 +112,8 @@ static IEnumerable<CodeInstruction> MyPatch(IEnumerable<CodeInstruction> instruc
 ### Modify Spell Table
 
 ```csharp
+using MageQuitModFramework.Utilities;
+
 GameModificationHelpers.ModifySpellTableEntry(
     Globals.spell_manager,
     SpellName.Fireball,
@@ -92,58 +125,25 @@ GameModificationHelpers.ModifySpellTableEntry(
 );
 ```
 
-### Create Upgrade UI
-
-```csharp
-var upgradeUI = new UpgradeUI
-{
-    MaxUpgrades = 3,
-    FreeBansPerRound = 1
-};
-
-upgradeUI.OnUpgradeSelected += (option, isPositive) =>
-{
-    UpgradeSystem.ApplyUpgrade(option, isPositive);
-};
-
-upgradeUI.OnUpgradeBanned += (option) =>
-{
-    UpgradeSystem.BannedUpgrades.Add((option.Spell, option.Attribute));
-};
-
-// In OnGUI
-upgradeUI.SetUpgradeOptions(upgrades);
-upgradeUI.Draw();
-```
-
 ## Available Attributes
 
 ### Class Attributes (SpellObject fields)
 - `DAMAGE` - Damage dealt
-- `RADIUS` - Effect radius
-- `POWER` - Knockback force
+- `RADIUS` - Effect radius  
+- `POWER` - Horizontal knockback
 - `Y_POWER` - Vertical knockback
-- `HEAL` - Healing amount (Frog of Life only)
+- `HEAL` - Heal amount (Frog of Life only)
 
 ### Spell Table Attributes
-- `cooldown` - Spell cooldown time
+- `cooldown` - Spell cooldown
 - `windUp` - Cast time
 - `windDown` - Recovery time after cast
 - `initialVelocity` - Projectile speed
 
-## Tier Values
-
-```csharp
-Tier.Common:    Rate 100%, Up +25%, Down -10%
-Tier.Rare:      Rate  25%, Up +50%, Down -20%
-Tier.Legendary: Rate   5%, Up +75%, Down -30%
-```
-
 ## Module Lifecycle
 
 ```csharp
-// Initialize framework
-LoaderV2.Initialize();
+using MageQuitModFramework.Modding;
 
 // Register module
 ModuleManager.RegisterModule(new MyModule());
@@ -154,8 +154,11 @@ ModuleManager.LoadModule("MyModule");
 // Check if loaded
 bool isLoaded = ModuleManager.IsModuleLoaded("MyModule");
 
-// Unload module
+// Unload module  
 ModuleManager.UnloadModule("MyModule");
+
+// Get all modules
+var modules = ModuleManager.GetAllModules();
 ```
 
 ## Spell Name Mappings
@@ -176,85 +179,86 @@ var player = PlayerManager.players.Values
     .FirstOrDefault(p => p.localPlayerNumber >= 0);
 ```
 
-### Check Game Data Loaded
+### Wait for Game Data
 ```csharp
-if (!GameDataInitializer.IsLoaded)
-{
-    FrameworkPlugin.Log.LogError("Game data not loaded");
-    return;
-}
+using MageQuitModFramework.Data;
+
+if (GameDataInitializer.IsLoaded)
+    DoSomething();
+else
+    GameDataInitializer.OnGameDataLoaded += DoSomething;
 ```
 
-### Get Spell Manager
+### Access Private Fields
 ```csharp
-var mgr = Globals.spell_manager;
-if (mgr == null || mgr.spell_table == null)
-    return;
-```
+using MageQuitModFramework.Utilities;
 
-### Patch on Round End
-```csharp
-[HarmonyPatch(typeof(NetworkManager), "CombineRoundScores")]
-[HarmonyPostfix]
-static void OnRoundEnd()
-{
-    if (PlayerManager.round <= 0) return;
-    // Your code
-}
-```
+// Get
+float value = GameModificationHelpers.GetPrivateField<float>(
+    instance, "fieldName"
+);
 
-### Set Private Field
-```csharp
+// Set
 GameModificationHelpers.SetPrivateField(
-    instance,
-    "START_TIME",
-    5.0f
+    instance, "fieldName", 5.0f
 );
 ```
 
-## Style Colors
-
+### Patch All Spell Init Methods
 ```csharp
-StyleManager.Green          // Positive/Up button style
-StyleManager.Red            // Negative/Down button style
-StyleManager.CommonStyle    // Common tier label
-StyleManager.RareStyle      // Purple rare tier label
-StyleManager.LegendaryStyle // Gold legendary tier label
-```
+using MageQuitModFramework.Utilities;
 
-## Ban Upgrades
-
-```csharp
-// Ban specific upgrade
-UpgradeSystem.BannedUpgrades.Add((SpellName.Fireball, "DAMAGE"));
-
-// Manual rejections (attribute doesn't work for this spell)
-UpgradeSystem.ManualRejections[SpellName.FrogOfLife] = 
-    new[] { "DAMAGE", "POWER", "Y_POWER" };
-```
-
-## Filter Upgrades
-
-```csharp
-var upgrades = UpgradeSystem.GenerateUpgradeOptions(
-    spells,
-    count: 5,
-    rng: new Random(),
-    spellFilter: spell => spell != SpellName.Primary // Exclude primary
+GameModificationHelpers.PatchAllSpellObjectInit(
+    harmony,
+    prefixMethod: typeof(MyClass).GetMethod("Prefix"),
+    postfixMethod: typeof(MyClass).GetMethod("Postfix")
 );
 ```
 
 ## Reset Modifications
 
 ```csharp
-// Reset all multipliers to 1.0
+using MageQuitModFramework.Spells;
+
+// Reset all spells
 SpellModificationSystem.ResetAllMultipliers();
 
 // Reset specific spell
 if (SpellModificationSystem.SpellModifierTable.TryGetValue(
-    SpellName.Fireball, 
+    SpellName.Fireball,
     out var mods))
 {
     mods.ResetAllMultipliers();
 }
+
+// Reset specific attribute
+if (SpellModificationSystem.TryGetModifier(
+    SpellName.Fireball,
+    "DAMAGE",
+    out var modifier))
+{
+    modifier.ResetMultiplier();
+}
+```
+
+## Helper Utilities
+
+```csharp
+using MageQuitModFramework.Utilities;
+
+// Modify all spells
+GameModificationHelpers.ModifyAllSpells(
+    Globals.spell_manager,
+    spell => spell.cooldown *= 0.8f
+);
+
+// Apply fields to instance
+var values = new Dictionary<string, float>
+{
+    ["DAMAGE"] = 50f,
+    ["RADIUS"] = 3.5f
+};
+GameModificationHelpers.ApplyFieldValuesToInstance(
+    spellObject, values
+);
 ```

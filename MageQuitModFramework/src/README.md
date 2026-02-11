@@ -1,61 +1,59 @@
-# Modding Framework
+# MageQuit Mod Framework
 
-A comprehensive framework for modding and customizing spell behaviors, attributes, and game mechanics.
+A lightweight, modular framework for creating MageQuit mods with spell modifications, custom modules, and UI integration.
 
 ## Overview
 
-The framework provides a modular, extensible system for:
-- **Modifying spell attributes** (damage, radius, cooldown, etc.)
-- **Creating upgrade systems** with tiered modifications
-- **Building UI components** for player interaction
-- **Managing mod lifecycles** with easy loading/unloading
-- **Direct game modifications** using helper utilities
+The framework provides:
+- **Spell modification system** with Base × Mult modifiers
+- **Module lifecycle management** for loading/unloading mods
+- **Game data initialization** with event hooks
+- **UI utilities** including dynamic mod menu and style management
+- **Helper utilities** for Harmony patching and game modifications
 
 ## Framework Structure
 
 ```
-Framework/
-├── Core/                       # Core modification systems
-│   ├── AttributeModifier.cs    # Base/Mult modifier system
-│   ├── SpellModifiers.cs       # Collection of modifiers per spell
-│   ├── SpellModificationSystem.cs  # Central spell modification manager
-│   └── GameModificationHelpers.cs  # Utilities for patching
-├── Modifiers/                  # Upgrade and tier systems
-│   ├── TierSystem.cs           # Common/Rare/Legendary tier definitions
-│   └── UpgradeSystem.cs        # Upgrade generation and application
-├── UI/                         # UI components
-│   ├── StyleManager.cs         # Centralized GUIStyle management
-│   ├── UpgradeUI.cs           # Upgrade selection UI
-│   └── UIComponents.cs        # Reusable UI elements
-└── Loading/                    # Module lifecycle management
-    ├── ModModule.cs           # Base mod module interface
-    ├── ModuleManager.cs       # Module registration and loading
-    └── GameDataInitializer.cs # Game data initialization
+MageQuitModFramework/
+├── Data/
+│   └── GameDataInitializer.cs  # Game data loading with events
+├── Modding/
+│   ├── Module.cs               # Base module interface
+│   ├── ModuleManager.cs        # Module lifecycle management
+│   └── ModManager.cs           # Deprecated wrapper
+├── Spells/
+│   ├── AttributeModifier.cs    # Base × Mult modifier system
+│   ├── SpellModifiers.cs       # Per-spell modifier collection
+│   └── SpellModificationSystem.cs  # Central modification manager
+├── UI/
+│   ├── DynamicModMenu.cs       # In-game mod menu (F5)
+│   ├── ModUIRegistry.cs        # UI component registration
+│   ├── StyleManager.cs         # GUIStyle definitions
+│   └── UIComponents.cs         # Reusable UI elements
+└── Utilities/
+    └── GameModificationHelpers.cs  # Harmony helpers
 ```
 
 ## Quick Start
 
-### 1. Create a New Mod Module
+### 1. Create a New Module
 
 ```csharp
-using BalancePatch.Framework.Loading;
+using MageQuitModFramework.Modding;
 using HarmonyLib;
 
-public class MyCustomModule : BaseModModule
+public class MyCustomModule : BaseModule
 {
     public override string ModuleName => "MyMod";
 
     protected override void OnLoad(Harmony harmony)
     {
-        // Apply your patches here
         harmony.PatchAll(typeof(MyPatches));
-        FrameworkPlugin.Log.LogInfo("MyMod loaded!");
     }
 
     protected override void OnUnload(Harmony harmony)
     {
-        // Clean up
-        harmony.UnpatchAll(ModuleName);
+        harmony.UnpatchSelf();
     }
 }
 ```
@@ -63,113 +61,112 @@ public class MyCustomModule : BaseModModule
 ### 2. Modify Spell Attributes
 
 ```csharp
-using BalancePatch.Framework.Core;
+using MageQuitModFramework.Spells;
+using MageQuitModFramework.Data;
 
-// Initialize the system (usually done automatically)
-SpellModificationSystem.Initialize(defaultSpellTable, defaultClassAttributes);
-
-// Modify a spell attribute
-SpellModificationSystem.TryUpdateModifier(
-    SpellName.Fireball,
-    "DAMAGE",
-    0.5f  // +50% damage (additive to multiplier)
-);
-
-// Apply changes to the game
-SpellModificationSystem.ApplyModifiersToGame(
-    Globals.spell_manager,
-    localPlayer
-);
-```
-
-### 3. Create Upgrades
-
-```csharp
-using BalancePatch.Framework.Modifiers;
-
-// Generate upgrade options for a player
-var spells = player.cooldowns.Keys.ToList();
-var upgrades = UpgradeSystem.GenerateUpgradeOptions(
-    spells,
-    count: 3,
-    rng: new Random()
-);
-
-// Apply an upgrade
-foreach (var upgrade in upgrades)
+// Wait for game data to load
+GameDataInitializer.OnGameDataLoaded += () =>
 {
-    UpgradeSystem.ApplyUpgrade(upgrade, isPositive: true);
-}
-```
+    // Modify a spell attribute
+    SpellModificationSystem.TryUpdateModifier(
+        SpellName.Fireball,
+        "DAMAGE",
+        0.5f  // +50% damage (additive to multiplier)
+    );
 
-### 4. Use UI Components
-
-```csharp
-using BalancePatch.Framework.UI;
-
-// In your OnGUI method
-var upgradeUI = new UpgradeUI();
-upgradeUI.OnUpgradeSelected += (option, isPositive) =>
-{
-    UpgradeSystem.ApplyUpgrade(option, isPositive);
+    // Apply changes
+    var player = GetLocalPlayer();
+    SpellModificationSystem.ApplyModifiersToGame(
+        Globals.spell_manager,
+        player
+    );
 };
+```
 
-upgradeUI.SetUpgradeOptions(upgrades);
-upgradeUI.Draw();
+### 3. Register UI Components
+
+```csharp
+using MageQuitModFramework.UI;
+
+// Register custom UI for your mod
+ModUIRegistry.RegisterMod(
+    "MyMod",
+    () =>
+    {
+        if (GUILayout.Button("Toggle Feature"))
+        {
+            // Your action
+        }
+        GUILayout.Label($"Status: Active");
+    }
+);
 ```
 
 ## Core Concepts
 
 ### AttributeModifier
 
-The `AttributeModifier` class uses a Base × Mult pattern:
-- `Base`: Original value from game data
-- `Mult`: Multiplicative modifier (starts at 1.0)
-- `Value`: Computed as Base × Mult
+Base × Mult pattern for attribute modifications:
+- `Base`: Original game value (immutable)
+- `Mult`: Multiplier (starts at 1.0, modified additively)
+- `Value`: Computed as `Base × Mult`
 
 ```csharp
-var modifier = new AttributeModifier(baseValue: 10f, mult: 1.0f);
-modifier.AddMultiplier(0.5f);  // Mult becomes 1.5, Value = 15
-modifier.ApplyMultiplier(2.0f); // Mult becomes 3.0, Value = 30
+var modifier = new AttributeModifier(baseValue: 10f);
+modifier.AddMultiplier(0.5f);     // Mult = 1.5, Value = 15
+modifier.AddMultiplier(0.25f);    // Mult = 1.75, Value = 17.5
+modifier.SetMultiplier(2.0f);     // Mult = 2.0, Value = 20
+modifier.ResetMultiplier();       // Mult = 1.0, Value = 10
 ```
 
 ### SpellModifiers
 
-Contains all modifiable attributes for a spell:
+Contains modifiers for each spell attribute:
 - **Class Attributes**: DAMAGE, RADIUS, POWER, Y_POWER, HEAL
 - **Spell Table**: cooldown, windUp, windDown, initialVelocity
 
 ```csharp
-var spellMods = new SpellModifiers();
-if (spellMods.TryGetModifier("DAMAGE", out var damageModifier))
+if (SpellModificationSystem.TryGetModifier(
+    SpellName.Fireball,
+    "DAMAGE",
+    out var modifier))
 {
-    damageModifier.AddMultiplier(0.25f); // +25% damage
+    modifier.AddMultiplier(0.25f); // +25% damage
 }
 ```
 
-### Tier System
-
-Three built-in tiers for upgrades:
-- **Common**: Rate 100%, Up +25%, Down -10%
-- **Rare**: Rate 25%, Up +50%, Down -20%
-- **Legendary**: Rate 5%, Up +75%, Down -30%
-
 ### Module System
 
-Modules encapsulate related patches and can be loaded/unloaded:
+Modules provide lifecycle management:
 
 ```csharp
-// Register a module
-ModuleManager.RegisterModule(new MyCustomModule());
-
-// Load it
-ModuleManager.LoadModule("MyMod");
+// Register and load
+ModuleManager.RegisterModule(new MyModule());
+ModuleManager.LoadModule("MyModule");
 
 // Check status
-bool isLoaded = ModuleManager.IsModuleLoaded("MyMod");
+bool isLoaded = ModuleManager.IsModuleLoaded("MyModule");
 
-// Unload it
-ModuleManager.UnloadModule("MyMod");
+// Unload
+ModuleManager.UnloadModule("MyModule");
+```
+
+### Game Data Initialization
+
+Hook into game data loading:
+
+```csharp
+if (GameDataInitializer.IsLoaded)
+{
+    // Data ready, proceed
+}
+else
+{
+    GameDataInitializer.OnGameDataLoaded += () =>
+    {
+        // Called once data is loaded
+    };
+}
 ```
 
 ## Game Modification Helpers
@@ -229,22 +226,34 @@ GameModificationHelpers.PatchAllSpellObjectInit(
 ### Example 1: Damage Boost Module
 
 ```csharp
-public class DamageBoostModule : BaseModModule
+using MageQuitModFramework.Modding;
+using MageQuitModFramework.Spells;
+using MageQuitModFramework.Data;
+using HarmonyLib;
+
+public class DamageBoostModule : BaseModule
 {
     public override string ModuleName => "DamageBoost";
 
     protected override void OnLoad(Harmony harmony)
     {
-        // Boost all spell damage by 50%
+        if (GameDataInitializer.IsLoaded)
+            ApplyBoost();
+        else
+            GameDataInitializer.OnGameDataLoaded += ApplyBoost;
+    }
+
+    private void ApplyBoost()
+    {
         foreach (var spell in SpellModificationSystem.SpellModifierTable.Keys)
         {
             SpellModificationSystem.TryUpdateModifier(spell, "DAMAGE", 0.5f);
         }
 
-        // Apply to game
+        var player = GetLocalPlayer();
         SpellModificationSystem.ApplyModifiersToGame(
             Globals.spell_manager,
-            PlayerManager.players.Values.FirstOrDefault()
+            player
         );
     }
 
@@ -255,152 +264,140 @@ public class DamageBoostModule : BaseModModule
 }
 ```
 
-### Example 2: Custom Upgrade UI
+### Example 2: Custom UI Integration
 
 ```csharp
-public class MyPlugin : BaseUnityPlugin
+using MageQuitModFramework.UI;
+using UnityEngine;
+
+public class MyModule : BaseModule
 {
-    private UpgradeUI upgradeUI;
+    public override string ModuleName => "MyMod";
 
-    private void Awake()
+    protected override void OnLoad(Harmony harmony)
     {
-        upgradeUI = new UpgradeUI
-        {
-            MaxUpgrades = 3,
-            FreeBansPerRound = 1
-        };
-
-        upgradeUI.OnUpgradeSelected += (option, isPositive) =>
-        {
-            UpgradeSystem.ApplyUpgrade(option, isPositive);
-            SpellModificationSystem.ApplyModifiersToGame(
-                Globals.spell_manager,
-                GetLocalPlayer()
-            );
-        };
-
-        upgradeUI.OnUpgradeBanned += (option) =>
-        {
-            UpgradeSystem.BannedUpgrades.Add((option.Spell, option.Attribute));
-        };
+        ModUIRegistry.RegisterMod(
+            ModuleName,
+            () => DrawUI()
+        );
     }
 
-    private void OnGUI()
+    private void DrawUI()
     {
-        upgradeUI.Draw();
+        GUILayout.Label("My Custom Mod");
+        
+        if (GUILayout.Button("Toggle Feature"))
+        {
+            // Your action
+        }
+    }
+
+    protected override void OnUnload(Harmony harmony)
+    {
+        ModUIRegistry.UnregisterMod(ModuleName);
     }
 }
 ```
 
-### Example 3: IL Code Patching
+### Example 3: IL Patching
 
 ```csharp
+using MageQuitModFramework.Utilities;
+using HarmonyLib;
+using System.Collections.Generic;
+using System.Reflection.Emit;
+
 [HarmonyPatch(typeof(SomeClass), "SomeMethod")]
 class Patch_ChangeValue
 {
-    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+    static IEnumerable<CodeInstruction> Transpiler(
+        IEnumerable<CodeInstruction> instructions)
     {
-        // Change brrage count from 5 to 3
-        return GameModificationHelpers.ReplaceIntConstant(instructions, 5, 3);
+        return GameModificationHelpers.ReplaceIntConstant(
+            instructions, 5, 3
+        );
     }
 }
 ```
 
 ## Best Practices
 
-1. **Always check if game data is loaded** before modifying spells:
+1. **Hook into game data loading**:
    ```csharp
-   if (!GameDataInitializer.IsLoaded)
-   {
-       throw new InvalidOperationException("Game data not loaded");
-   }
+   if (GameDataInitializer.IsLoaded)
+       Initialize();
+   else
+       GameDataInitializer.OnGameDataLoaded += Initialize;
    ```
 
-2. **Use the module system** for organized, loadable mods:
+2. **Use the module system**:
    ```csharp
-   public class MyMod : BaseModModule { ... }
+   public class MyMod : BaseModule { ... }
    ```
 
-3. **Reset state on unload** to prevent conflicts:
+3. **Clean up on unload**:
    ```csharp
    protected override void OnUnload(Harmony harmony)
    {
        SpellModificationSystem.ResetAllMultipliers();
-       harmony.UnpatchAll(ModuleName);
+       ModUIRegistry.UnregisterMod(ModuleName);
+       harmony.UnpatchSelf();
    }
    ```
 
-4. **Use helpers for common patterns**:
+4. **Use helper utilities**:
    ```csharp
    GameModificationHelpers.ReplaceFloatConstant(...);
    GameModificationHelpers.ModifySpellTableEntry(...);
+   GameModificationHelpers.SetPrivateField(...);
    ```
 
-5. **Leverage the upgrade system** for balanced modifications:
+5. **Register UI components**:
    ```csharp
-   var options = UpgradeSystem.GenerateUpgradeOptions(...);
+   ModUIRegistry.RegisterMod(ModuleName, () => DrawUI());
    ```
 
 ## API Reference
 
 ### SpellModificationSystem
 
-- `Initialize(defaultSpellTable, defaultClassAttributes)` - Initialize the system
-- `TryUpdateModifier(spellName, attribute, additiveMult)` - Modify an attribute
-- `TryGetModifier(spellName, attribute, out modifier)` - Get a modifier
-- `ApplyModifiersToGame(spellManager, player)` - Apply changes to game
-- `ResetAllMultipliers()` - Reset all modifications
-
-### UpgradeSystem
-
-- `GenerateUpgradeOptions(spells, count, rng, filter)` - Generate upgrades
-- `ApplyUpgrade(option, isPositive)` - Apply an upgrade
-- `IsUpgradeAllowed(spell, attribute, isPrimary)` - Check if upgrade is valid
-- `BannedUpgrades` - Set of banned (spell, attribute) pairs
-- `ManualRejections` - Dictionary of manual rejections
+- `Initialize(defaultSpellTable, defaultClassAttributes)` - Initialize system
+- `TryUpdateModifier(spellName, attribute, additiveMult)` - Add to multiplier
+- `TryGetModifier(spellName, attribute, out modifier)` - Get modifier
+- `ApplyModifiersToGame(spellManager, player)` - Apply to game
+- `ResetAllMultipliers()` - Reset all to 1.0
+- `GetSpellObjectTypeName(spellName)` - Get type name for spell
 
 ### ModuleManager
 
-- `Initialize(harmony)` - Initialize the module system
 - `RegisterModule(module)` - Register a module
-- `LoadModule(moduleName)` - Load a module
-- `UnloadModule(moduleName)` - Unload a module
-- `IsModuleLoaded(moduleName)` - Check if loaded
+- `LoadModule(moduleName)` - Load registered module
+- `UnloadModule(moduleName)` - Unload module
+- `IsModuleLoaded(moduleName)` - Check load status
+- `GetAllModules()` - Get all registered modules
 
-## Migration Guide
+### GameDataInitializer
 
-### From Old Patches to Framework
+- `IsLoaded` - Check if game data is loaded
+- `OnGameDataLoaded` - Event fired when data loads
+- `DefaultSpellTable` - Original spell data
+- `DefaultClassAttributes` - Original class attributes
 
-**Before:**
+### ModUIRegistry
+
+- `RegisterMod(modName, drawAction)` - Register UI
+- `UnregisterMod(modName)` - Unregister UI
+- `GetAllMods()` - Get all registered UIs
+
+## Spell Name Mappings
+
+Most spells map to `{SpellName}Object`, with exceptions:
+
 ```csharp
-[HarmonyPatch(typeof(SomeClass), "SomeMethod")]
-class MyPatch
-{
-    static void Postfix() { ... }
-}
-
-// In Plugin.cs
-harmony.PatchAll(typeof(MyPatch));
+SpellName.RockBlock    → "StonewallObject"
+SpellName.FlameLeash   → "BurningLeashObject"
+SpellName.SomerAssault → "SomAssaultObject"
+SpellName.Sustain      → "SustainObjectObject"
 ```
 
-**After:**
-```csharp
-public class MyModule : BaseModModule
-{
-    public override string ModuleName => "MyMod";
-
-    protected override void OnLoad(Harmony harmony)
-    {
-        harmony.PatchAll(typeof(MyPatches));
-    }
-
-    protected override void OnUnload(Harmony harmony)
-    {
-        harmony.UnpatchAll(ModuleName);
-    }
-}
-
-// In Plugin.cs
-ModuleManager.RegisterModule(new MyModule());
-ModuleManager.LoadModule("MyMod");
-```
+Use `SpellModificationSystem.GetSpellObjectTypeName(spellName)` to get the correct type name.
