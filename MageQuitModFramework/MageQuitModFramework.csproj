@@ -60,4 +60,12 @@
 				DestinationFolder="$(BepInExPluginDir)" />
 	</Target>
 
+	<Target Name="CopyToBalancePatchLib"
+			AfterTargets="Build"
+			Condition="Exists('..\..\BalancePatch\lib')">
+
+		<Copy SourceFiles="$(OutputPath)MageQuitModFramework.dll"
+				DestinationFolder="..\..\BalancePatch\lib" />
+	</Target>
+
 </Project>
