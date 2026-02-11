@@ -5,14 +5,37 @@ using System.Reflection;
 
 namespace MageQuitModFramework.Spells
 {
+    /// <summary>
+    /// Central system for managing spell attribute modifications using Base × Mult pattern.
+    /// </summary>
     public static class SpellModificationSystem
     {
+        /// <summary>
+        /// Spell object class attributes (DAMAGE, RADIUS, POWER, Y_POWER).
+        /// </summary>
         public static readonly string[] ClassAttributeKeys = ["DAMAGE", "RADIUS", "POWER", "Y_POWER"];
+        
+        /// <summary>
+        /// Spell table attributes (cooldown, windUp, windDown, initialVelocity).
+        /// </summary>
         public static readonly string[] SpellTableKeys = ["cooldown", "windUp", "windDown", "initialVelocity"];
+        
+        /// <summary>
+        /// Custom attributes not in class or table (HEAL).
+        /// </summary>
         public static readonly string[] CustomKeys = ["HEAL"];
 
+        /// <summary>
+        /// Dictionary mapping spell names to their modifiable attributes.
+        /// </summary>
         public static Dictionary<SpellName, SpellModifiers> SpellModifierTable { get; private set; } = [];
 
+        /// <summary>
+        /// Initializes the modification system with default game values.
+        /// Called automatically by GameDataInitializer.
+        /// </summary>
+        /// <param name="defaultSpellTable">Original spell table from SpellManager</param>
+        /// <param name="defaultClassAttributes">Original class attributes from spell objects</param>
         public static void Initialize(Dictionary<SpellName, Spell> defaultSpellTable, Dictionary<SpellName, Dictionary<string, float>> defaultClassAttributes)
         {
             SpellModifierTable.Clear();
@@ -39,6 +62,19 @@ namespace MageQuitModFramework.Spells
             }
         }
 
+        /// <summary>
+        /// Updates a spell attribute by adding to its multiplier.
+        /// </summary>
+        /// <param name="name">The spell to modify</param>
+        /// <param name="attribute">Attribute name (e.g., "DAMAGE", "cooldown")</param>
+        /// <param name="additiveMult">Value to add to multiplier (0.5 = +50%)</param>
+        /// <returns>True if successful, false if spell or attribute not found</returns>
+        /// <example>
+        /// <code>
+        /// // Increase Fireball damage by 50%
+        /// SpellModificationSystem.TryUpdateModifier(SpellName.Fireball, "DAMAGE", 0.5f);
+        /// </code>
+        /// </example>
         public static bool TryUpdateModifier(SpellName name, string attribute, float additiveMult)
         {
             if (!SpellModifierTable.TryGetValue(name, out var mods))
@@ -53,6 +89,13 @@ namespace MageQuitModFramework.Spells
             return false;
         }
 
+        /// <summary>
+        /// Gets the modifier for a specific spell attribute.
+        /// </summary>
+        /// <param name="name">The spell name</param>
+        /// <param name="attribute">Attribute name</param>
+        /// <param name="modifier">Output modifier if found</param>
+        /// <returns>True if modifier found, false otherwise</returns>
         public static bool TryGetModifier(SpellName name, string attribute, out AttributeModifier modifier)
         {
             modifier = null;

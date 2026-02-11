@@ -6,6 +6,10 @@ using MageQuitModFramework.Modding;
 
 namespace MageQuitModFramework.UI
 {
+    /// <summary>
+    /// In-game IMGUI menu for viewing and managing registered mods.
+    /// Toggle visibility with F5 key. Displays expandable panels for each registered mod.
+    /// </summary>
     public class DynamicModMenu : MonoBehaviour
     {
         private bool _isVisible = false;
@@ -13,6 +17,9 @@ namespace MageQuitModFramework.UI
         private Vector2 _scrollPosition = Vector2.zero;
         private Dictionary<string, bool> _modExpanded = new Dictionary<string, bool>();
 
+        /// <summary>
+        /// Initializes the mod menu component.
+        /// </summary>
         public void Initialize()
         {
             FrameworkPlugin.Log.LogInfo("Initializing mod menu with IMGUI");

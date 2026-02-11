@@ -4,8 +4,20 @@ using MageQuitModFramework.Modding;
 
 namespace MageQuitModFramework.UI
 {
+    /// <summary>
+    /// Reusable IMGUI components for building mod UI interfaces.
+    /// Provides styled buttons, labels, text fields, and layout helpers.
+    /// </summary>
     public static class UIComponents
     {
+        /// <summary>
+        /// Draws a toggle button for loading/unloading a module.
+        /// </summary>
+        /// <param name="modName">The name of the mod owning the module</param>
+        /// <param name="moduleName">The name of the module to toggle</param>
+        /// <param name="moduleManager">The module manager controlling the module</param>
+        /// <param name="buttonWidth">Width of the button in pixels (default 200)</param>
+        /// <returns>True if the button was clicked and module state changed, false otherwise</returns>
         public static bool DrawModuleToggle(string modName, string moduleName, ModuleManager moduleManager, float buttonWidth = 200)
         {
             bool isLoaded = moduleManager.IsModuleLoaded(moduleName);
@@ -22,6 +34,11 @@ namespace MageQuitModFramework.UI
             return false;
         }
 
+        /// <summary>
+        /// Creates a labeled section with optional content callback.
+        /// </summary>
+        /// <param name="title">The section title text</param>
+        /// <param name="content">Optional callback to render section content</param>
         public static void Section(string title, Action content)
         {
             GUILayout.Label(title);
@@ -30,6 +47,16 @@ namespace MageQuitModFramework.UI
             GUILayout.Space(10);
         }
 
+        /// <summary>
+        /// Draws a text field with an adjacent button.
+        /// </summary>
+        /// <param name="label">Optional label displayed above the field</param>
+        /// <param name="currentValue">Current text value of the field</param>
+        /// <param name="buttonText">Text displayed on the button</param>
+        /// <param name="buttonClicked">Output parameter indicating if button was clicked</param>
+        /// <param name="textWidth">Width of the text field in pixels (default 200)</param>
+        /// <param name="buttonWidth">Width of the button in pixels (default 100)</param>
+        /// <returns>Tuple containing the updated text value and button click state</returns>
         public static (string value, bool clicked) TextFieldWithButton(string label, string currentValue, string buttonText, out bool buttonClicked, float textWidth = 200, float buttonWidth = 100)
         {
             if (!string.IsNullOrEmpty(label))
@@ -43,6 +70,13 @@ namespace MageQuitModFramework.UI
             return (result, buttonClicked);
         }
 
+        /// <summary>
+        /// Draws a button with optional custom style.
+        /// </summary>
+        /// <param name="text">Button label text</param>
+        /// <param name="width">Button width in pixels (default 200)</param>
+        /// <param name="style">Optional custom GUIStyle (uses default if null)</param>
+        /// <returns>True if button was clicked, false otherwise</returns>
         public static bool Button(string text, float width = 200, GUIStyle style = null)
         {
             return style == null 
@@ -50,6 +84,11 @@ namespace MageQuitModFramework.UI
                 : GUILayout.Button(text, style, GUILayout.Width(width));
         }
 
+        /// <summary>
+        /// Draws a text label with optional custom style.
+        /// </summary>
+        /// <param name="text">Label text content</param>
+        /// <param name="style">Optional custom GUIStyle (uses default if null)</param>
         public static void Label(string text, GUIStyle style = null)
         {
             if (style == null)
@@ -58,21 +97,37 @@ namespace MageQuitModFramework.UI
                 GUILayout.Label(text, style);
         }
 
+        /// <summary>
+        /// Draws a text input field.
+        /// </summary>
+        /// <param name="text">Current text value</param>
+        /// <param name="width">Field width in pixels (default 200)</param>
+        /// <returns>Updated text value</returns>
         public static string TextField(string text, float width = 200)
         {
             return GUILayout.TextField(text, GUILayout.Width(width));
         }
 
+        /// <summary>
+        /// Adds vertical spacing in the layout.
+        /// </summary>
+        /// <param name="pixels">Amount of vertical space in pixels (default 10)</param>
         public static void Space(float pixels = 10)
         {
             GUILayout.Space(pixels);
         }
 
+        /// <summary>
+        /// Begins a horizontal layout group.
+        /// </summary>
         public static void BeginHorizontal()
         {
             GUILayout.BeginHorizontal();
         }
 
+        /// <summary>
+        /// Ends the current horizontal layout group.
+        /// </summary>
         public static void EndHorizontal()
         {
             GUILayout.EndHorizontal();
