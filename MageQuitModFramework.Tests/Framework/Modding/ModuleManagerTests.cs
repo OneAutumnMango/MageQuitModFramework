@@ -7,7 +7,7 @@ namespace MageQuitModFramework.Tests.Framework.Loading
 {
     public class ModuleManagerTests
     {
-        private class TestModule : IModModule
+        private class TestModule : IModule
         {
             public string ModuleName { get; set; }
             public bool IsLoaded { get; set; }

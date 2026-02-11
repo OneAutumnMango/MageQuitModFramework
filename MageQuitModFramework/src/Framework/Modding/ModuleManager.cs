@@ -6,7 +6,7 @@ namespace MageQuitModFramework.Modding
 {
     public class ModuleManager
     {
-        private readonly Dictionary<string, IModModule> _modules = new();
+        private readonly Dictionary<string, IModule> _modules = new();
         private readonly Dictionary<string, Harmony> _moduleHarmonyInstances = new();
         private readonly Harmony _baseHarmony;
 
@@ -15,7 +15,7 @@ namespace MageQuitModFramework.Modding
             _baseHarmony = harmony;
         }
 
-        public void RegisterModule(IModModule module)
+        public void RegisterModule(IModule module)
         {
             if (_modules.ContainsKey(module.ModuleName))
             {

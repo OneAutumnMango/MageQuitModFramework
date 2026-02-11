@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace MageQuitModFramework.Modding
 {
-    public interface IModModule
+    public interface IModule
     {
         string ModuleName { get; }
         bool IsLoaded { get; }
@@ -12,7 +12,7 @@ namespace MageQuitModFramework.Modding
         void Unload(Harmony harmony);
     }
 
-    public abstract class BaseModModule : IModModule
+    public abstract class BaseModule : IModule
     {
         public abstract string ModuleName { get; }
         public bool IsLoaded { get; protected set; }
