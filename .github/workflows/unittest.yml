@@ -22,4 +22,4 @@ jobs:
 
       - name: Run tests
         run: |
-          dotnet test MageQuitModFramework/MageQuitModFramework.sln --configuration Release
+          dotnet test MageQuitModFramework.sln --configuration Release
