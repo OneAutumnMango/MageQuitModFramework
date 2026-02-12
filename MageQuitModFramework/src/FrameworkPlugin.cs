@@ -1,5 +1,6 @@
 using BepInEx;
 using BepInEx.Logging;
+using HarmonyLib;
 using UnityEngine;
 using MageQuitModFramework.UI;
 using MageQuitModFramework.Modding;
@@ -17,19 +18,25 @@ namespace MageQuitModFramework
         /// Global logger instance accessible to all mods using the framework.
         /// </summary>
         public static ManualLogSource Log { get; private set; }
-        
+
         /// <summary>
         /// Singleton instance of the framework plugin.
         /// </summary>
         public static FrameworkPlugin Instance { get; private set; }
 
         private DynamicModMenu _modMenu;
+        private Harmony _harmony;
 
         private void Awake()
         {
             Instance = this;
             Log = Logger;
             Log.LogInfo("MageQuit Mod Framework initialized");
+
+            // Initialize Harmony and patch GameDataInitializer
+            _harmony = new Harmony("com.magequit.modframework");
+            _harmony.PatchAll(typeof(Data.GameDataInitializer));
+            Log.LogInfo("GameDataInitializer patched");
 
             var menuObj = new GameObject("MageQuitModMenu");
             DontDestroyOnLoad(menuObj);

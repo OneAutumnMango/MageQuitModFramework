@@ -70,14 +70,14 @@ namespace MageQuitModFramework.UI
                     if (_modExpanded[modEntry.ModName])
                     {
                         GUILayout.BeginVertical(GUI.skin.box);
-                        
+
                         // Show description
                         if (!string.IsNullOrEmpty(modEntry.Description))
                         {
                             GUILayout.Label(modEntry.Description, GUI.skin.GetStyle("Label"));
                             GUILayout.Space(5);
                         }
-                        
+
                         // Draw module toggles for this mod
                         if (ModManager.TryGetModuleManager(modEntry.ModName, out var moduleManager))
                         {
@@ -91,7 +91,7 @@ namespace MageQuitModFramework.UI
                                 GUILayout.Space(10);
                             }
                         }
-                        
+
                         // Call IMGUI callback if available
                         if (modEntry.DrawIMGUI != null)
                         {
@@ -108,7 +108,7 @@ namespace MageQuitModFramework.UI
                         {
                             GUILayout.Label("No options available for this mod.");
                         }
-                        
+
                         GUILayout.EndVertical();
                     }
 

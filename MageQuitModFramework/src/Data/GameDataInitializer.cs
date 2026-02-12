@@ -68,6 +68,7 @@ namespace MageQuitModFramework.Data
 
             FrameworkPlugin.Log.LogInfo("Game data loaded successfully");
             OnGameDataLoaded?.Invoke();
+            FrameworkPlugin.Log.LogInfo("Fired OnGameDataLoaded event");
         }
 
         private static void PopulateDefaultClassAttributes()

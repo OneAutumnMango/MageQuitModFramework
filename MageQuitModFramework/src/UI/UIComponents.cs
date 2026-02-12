@@ -61,12 +61,12 @@ namespace MageQuitModFramework.UI
         {
             if (!string.IsNullOrEmpty(label))
                 GUILayout.Label(label);
-            
+
             GUILayout.BeginHorizontal();
             string result = GUILayout.TextField(currentValue, GUILayout.Width(textWidth));
             buttonClicked = GUILayout.Button(buttonText, GUILayout.Width(buttonWidth));
             GUILayout.EndHorizontal();
-            
+
             return (result, buttonClicked);
         }
 
@@ -79,7 +79,7 @@ namespace MageQuitModFramework.UI
         /// <returns>True if button was clicked, false otherwise</returns>
         public static bool Button(string text, float width = 200, GUIStyle style = null)
         {
-            return style == null 
+            return style == null
                 ? GUILayout.Button(text, GUILayout.Width(width))
                 : GUILayout.Button(text, style, GUILayout.Width(width));
         }

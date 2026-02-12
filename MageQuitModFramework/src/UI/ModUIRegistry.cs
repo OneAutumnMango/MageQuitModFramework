@@ -15,22 +15,22 @@ namespace MageQuitModFramework.UI
         /// The display name of the mod shown in the UI.
         /// </summary>
         public string ModName { get; set; }
-        
+
         /// <summary>
         /// Optional description text displayed when the mod entry is expanded.
         /// </summary>
         public string Description { get; set; }
-        
+
         /// <summary>
         /// IMGUI drawing callback invoked when the mod's UI panel is expanded.
         /// </summary>
         public Action DrawIMGUI { get; set; }
-        
+
         /// <summary>
         /// Whether the mod's UI panel is currently expanded in the menu.
         /// </summary>
         public bool IsExpanded { get; set; }
-        
+
         /// <summary>
         /// Display priority for sorting mod entries. Lower values appear first.
         /// Default is 100.

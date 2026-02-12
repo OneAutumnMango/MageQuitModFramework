@@ -23,9 +23,9 @@ namespace MageQuitModFramework.Tests
         public void GetPrivateField_ReturnsCorrectIntValue()
         {
             var obj = new TestClass();
-            
+
             var result = GameModificationHelpers.GetPrivateField<int>(obj, "_privateInt");
-            
+
             Assert.Equal(42, result);
         }
 
@@ -33,9 +33,9 @@ namespace MageQuitModFramework.Tests
         public void GetPrivateField_ReturnsCorrectStringValue()
         {
             var obj = new TestClass();
-            
+
             var result = GameModificationHelpers.GetPrivateField<string>(obj, "_privateString");
-            
+
             Assert.Equal("test", result);
         }
 
@@ -44,10 +44,10 @@ namespace MageQuitModFramework.Tests
         {
             var obj = new TestClass();
             var expected = 100;
-            
+
             GameModificationHelpers.SetPrivateField(obj, "_privateInt", expected);
             var result = GameModificationHelpers.GetPrivateField<int>(obj, "_privateInt");
-            
+
             Assert.Equal(expected, result);
         }
 
@@ -56,10 +56,10 @@ namespace MageQuitModFramework.Tests
         {
             var obj = new TestClass();
             var expected = "updated";
-            
+
             GameModificationHelpers.SetPrivateField(obj, "_privateString", expected);
             var result = GameModificationHelpers.GetPrivateField<string>(obj, "_privateString");
-            
+
             Assert.Equal(expected, result);
         }
 
@@ -67,9 +67,9 @@ namespace MageQuitModFramework.Tests
         public void GetPrivateField_ReturnsCorrectFloatValue()
         {
             var obj = new TestClass();
-            
+
             var result = GameModificationHelpers.GetPrivateField<float>(obj, "PublicFloat");
-            
+
             Assert.Equal(3.14f, result);
         }
 
@@ -78,10 +78,10 @@ namespace MageQuitModFramework.Tests
         {
             var obj = new TestClass();
             var expected = 9.99f;
-            
+
             GameModificationHelpers.SetPrivateField(obj, "PublicFloat", expected);
             var result = GameModificationHelpers.GetPrivateField<float>(obj, "PublicFloat");
-            
+
             Assert.Equal(expected, result);
         }
 
@@ -95,9 +95,9 @@ namespace MageQuitModFramework.Tests
                 { "_privateString", "multi" },
                 { "PublicFloat", 2.71f }
             };
-            
+
             GameModificationHelpers.SetMultipleFields(obj, updates);
-            
+
             Assert.Equal(updates["_privateInt"], GameModificationHelpers.GetPrivateField<int>(obj, "_privateInt"));
             Assert.Equal(updates["_privateString"], GameModificationHelpers.GetPrivateField<string>(obj, "_privateString"));
             Assert.Equal(updates["PublicFloat"], obj.PublicFloat);
@@ -112,9 +112,9 @@ namespace MageQuitModFramework.Tests
                 { "_privateInt", 50 },
                 { "NonExistentField", "value" }
             };
-            
+
             GameModificationHelpers.SetMultipleFields(obj, updates);
-            
+
             Assert.Equal(updates["_privateInt"], GameModificationHelpers.GetPrivateField<int>(obj, "_privateInt"));
         }
 

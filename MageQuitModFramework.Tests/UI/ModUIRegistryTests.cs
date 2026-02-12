@@ -141,7 +141,7 @@ namespace MageQuitModFramework.Tests.Framework.UI
         public void GetAllMods_CachesSortedList()
         {
             ModUIRegistry.RegisterMod("Mod1", "Desc", () => { }, 100);
-            
+
             var firstCall = ModUIRegistry.GetAllMods();
             var secondCall = ModUIRegistry.GetAllMods();
 

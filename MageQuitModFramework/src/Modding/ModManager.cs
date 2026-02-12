@@ -12,12 +12,12 @@ namespace MageQuitModFramework.Modding
         /// The unique name of the mod.
         /// </summary>
         public string ModName { get; set; }
-        
+
         /// <summary>
         /// The module manager instance handling this mod's modules.
         /// </summary>
         public ModuleManager ModuleManager { get; set; }
-        
+
         /// <summary>
         /// The Harmony instance used for patching game code.
         /// </summary>

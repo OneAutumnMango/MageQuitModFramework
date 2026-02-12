@@ -14,7 +14,7 @@ namespace MageQuitModFramework.UI
 
         /// <summary>Dark background color for UI panels.</summary>
         public static Color BackgroundColor => new Color(0.1f, 0.1f, 0.1f, 0.9f);
-        
+
         /// <summary>Slightly lighter panel color for nested containers.</summary>
         public static Color PanelColor => new Color(0.2f, 0.2f, 0.2f, 0.95f);
 

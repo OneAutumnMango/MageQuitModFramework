@@ -13,18 +13,18 @@ namespace MageQuitModFramework.Modding
         /// Unique name for this module.
         /// </summary>
         string ModuleName { get; }
-        
+
         /// <summary>
         /// Whether the module is currently loaded.
         /// </summary>
         bool IsLoaded { get; }
-        
+
         /// <summary>
         /// Loads the module and applies patches.
         /// </summary>
         /// <param name="harmony">Harmony instance for patching</param>
         void Load(Harmony harmony);
-        
+
         /// <summary>
         /// Unloads the module and removes patches.
         /// </summary>
@@ -41,7 +41,7 @@ namespace MageQuitModFramework.Modding
         /// Unique identifier for this module.
         /// </summary>
         public abstract string ModuleName { get; }
-        
+
         /// <summary>
         /// Whether this module is currently loaded.
         /// </summary>
@@ -102,7 +102,7 @@ namespace MageQuitModFramework.Modding
         /// </summary>
         /// <param name="harmony">Harmony instance for patching</param>
         protected abstract void OnLoad(Harmony harmony);
-        
+
         /// <summary>
         /// Called when the module is unloaded. Override to remove patches and clean up.
         /// </summary>

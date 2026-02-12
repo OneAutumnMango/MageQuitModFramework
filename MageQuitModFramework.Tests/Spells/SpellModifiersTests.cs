@@ -10,9 +10,9 @@ namespace MageQuitModFramework.Tests
         {
             var damage = new AttributeModifier(100f);
             var modifiers = new SpellModifiers { DAMAGE = damage };
-            
+
             var result = modifiers.TryGetModifier("DAMAGE", out var modifier);
-            
+
             Assert.True(result);
             Assert.Same(damage, modifier);
         }
@@ -21,9 +21,9 @@ namespace MageQuitModFramework.Tests
         public void TryGetModifier_ReturnsFalse_WhenPropertyDoesNotExist()
         {
             var modifiers = new SpellModifiers();
-            
+
             var result = modifiers.TryGetModifier("NonExistent", out var modifier);
-            
+
             Assert.False(result);
             Assert.Null(modifier);
         }
@@ -32,9 +32,9 @@ namespace MageQuitModFramework.Tests
         public void TryGetModifier_ReturnsFalse_WhenPropertyIsNull()
         {
             var modifiers = new SpellModifiers { DAMAGE = null };
-            
+
             var result = modifiers.TryGetModifier("DAMAGE", out var modifier);
-            
+
             Assert.False(result);
             Assert.Null(modifier);
         }
@@ -44,9 +44,9 @@ namespace MageQuitModFramework.Tests
         {
             var modifiers = new SpellModifiers();
             var newModifier = new AttributeModifier(200f);
-            
+
             var result = modifiers.TrySetModifier("RADIUS", newModifier);
-            
+
             Assert.True(result);
             Assert.Same(newModifier, modifiers.RADIUS);
         }
@@ -56,9 +56,9 @@ namespace MageQuitModFramework.Tests
         {
             var modifiers = new SpellModifiers();
             var newModifier = new AttributeModifier(200f);
-            
+
             var result = modifiers.TrySetModifier("NonExistent", newModifier);
-            
+
             Assert.False(result);
         }
 
@@ -68,9 +68,9 @@ namespace MageQuitModFramework.Tests
             var oldModifier = new AttributeModifier(100f);
             var newModifier = new AttributeModifier(200f);
             var modifiers = new SpellModifiers { POWER = oldModifier };
-            
+
             modifiers.TrySetModifier("POWER", newModifier);
-            
+
             Assert.Same(newModifier, modifiers.POWER);
             Assert.NotSame(oldModifier, modifiers.POWER);
         }
@@ -90,9 +90,9 @@ namespace MageQuitModFramework.Tests
                 initialVelocity = new AttributeModifier(10f, 4f),
                 HEAL            = new AttributeModifier(75f, 2.2f)
             };
-            
+
             modifiers.ResetAllMultipliers();
-            
+
             Assert.Equal(1f, modifiers.DAMAGE.Mult);
             Assert.Equal(1f, modifiers.RADIUS.Mult);
             Assert.Equal(1f, modifiers.POWER.Mult);
@@ -121,9 +121,9 @@ namespace MageQuitModFramework.Tests
                 initialVelocity = new AttributeModifier(10f, 4f),
                 HEAL            = new AttributeModifier(75f, 2.2f)
             };
-            
+
             modifiers.ResetAllMultipliers();
-            
+
             Assert.Equal(damageBase, modifiers.DAMAGE.Base);
             Assert.Equal(radiusBase, modifiers.RADIUS.Base);
         }
@@ -140,7 +140,7 @@ namespace MageQuitModFramework.Tests
             var windDown = new AttributeModifier(7f);
             var velocity = new AttributeModifier(8f);
             var heal     = new AttributeModifier(9f);
-            
+
             var modifiers = new SpellModifiers
             {
                 DAMAGE          = damage,
@@ -153,7 +153,7 @@ namespace MageQuitModFramework.Tests
                 initialVelocity = velocity,
                 HEAL            = heal
             };
-            
+
             Assert.True(modifiers.TryGetModifier("DAMAGE", out var d) && d == damage);
             Assert.True(modifiers.TryGetModifier("RADIUS", out var r) && r == radius);
             Assert.True(modifiers.TryGetModifier("POWER", out var p) && p == power);
