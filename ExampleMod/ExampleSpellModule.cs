@@ -3,6 +3,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using MageQuitModFramework;
 using MageQuitModFramework.Modding;
+using MageQuitModFramework.Spells;
 using MageQuitModFramework.Utilities;
 
 namespace ExampleMod.Modules
@@ -47,7 +48,7 @@ namespace ExampleMod.Modules
                 _log.LogInfo("SpellManager awakened - modifying spells...");
 
                 // Example: Make fireball faster
-                GameModificationHelpers.ModifySpellTableEntry(__instance, SpellName.Fireball, spell =>
+                SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.Fireball, spell =>
                 {
                     spell.cooldown *= 0.5f;  // 50% faster cooldown
                     spell.initialVelocity *= 2f;  // 100% faster projectile

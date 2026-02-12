@@ -43,7 +43,7 @@ namespace ExampleMod
                 priority: 50
             );
 
-            _rpcManager = PhotonRpcManager.CreatePersistent("ExampleModRpcManager");
+            _rpcManager = PhotonRpcManager.CreatePersistent("ExampleModRpcManager", 9998);
             _rpcManager.RegisterHandler("ExampleModPing", args =>
             {
                 _rpcTestCount++;

@@ -1,9 +1,8 @@
-using HarmonyLib;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using HarmonyLib;
 
 namespace MageQuitModFramework.Utilities
 {
@@ -136,120 +135,6 @@ namespace MageQuitModFramework.Utilities
             foreach (var kvp in fieldValues)
             {
                 AccessTools.Field(instance.GetType(), kvp.Key)?.SetValue(instance, kvp.Value);
-            }
-        }
-
-        /// <summary>
-        /// Gets the local player instance from the PlayerManager.
-        /// </summary>
-        /// <returns>The local Player object, or null if no local player exists</returns>
-        public static Player GetLocalPlayer()
-        {
-            return PlayerManager.players.Values.FirstOrDefault(p => p.localPlayerNumber >= 0);
-        }
-
-        /// <summary>
-        /// Checks if game data (specifically the spell manager and spell table) is ready for access.
-        /// </summary>
-        /// <returns>True if game data is loaded and accessible, false otherwise</returns>
-        public static bool IsGameDataReady()
-        {
-            return Globals.spell_manager != null && Globals.spell_manager.spell_table != null;
-        }
-
-        /// <summary>
-        /// Modifies a single spell table entry using a callback function.
-        /// </summary>
-        /// <param name="manager">The SpellManager instance containing the spell table</param>
-        /// <param name="spellName">The spell to modify</param>
-        /// <param name="modifier">Callback that receives the Spell object for modification</param>
-        public static void ModifySpellTableEntry(SpellManager manager, SpellName spellName, Action<Spell> modifier)
-        {
-            if (manager?.spell_table == null)
-                return;
-
-            if (manager.spell_table.TryGetValue(spellName, out Spell spell))
-            {
-                modifier(spell);
-            }
-        }
-
-        /// <summary>
-        /// Applies a modification callback to all spells in the spell table.
-        /// </summary>
-        /// <param name="manager">The SpellManager instance containing the spell table</param>
-        /// <param name="modifier">Callback that receives each Spell object for modification</param>
-        public static void ModifyAllSpells(SpellManager manager, Action<Spell> modifier)
-        {
-            if (manager?.spell_table == null)
-                return;
-
-            foreach (SpellName name in Enum.GetValues(typeof(SpellName)))
-            {
-                if (manager.spell_table.TryGetValue(name, out Spell spell))
-                {
-                    modifier(spell);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Modifies specific float fields across all spells using a transformation function.
-        /// </summary>
-        /// <param name="manager">The SpellManager instance containing the spell table</param>
-        /// <param name="fieldNames">Array of field names to modify (e.g., "cooldown", "windUp")</param>
-        /// <param name="transform">Function that takes (spell, fieldName, originalValue) and returns the new value</param>
-        public static void ModifySpellTableValues(SpellManager manager, string[] fieldNames, Func<Spell, string, float, float> transform)
-        {
-            if (manager?.spell_table == null)
-                return;
-
-            foreach (SpellName name in Enum.GetValues(typeof(SpellName)))
-            {
-                if (!manager.spell_table.TryGetValue(name, out Spell spell))
-                    continue;
-
-                foreach (var fieldName in fieldNames)
-                {
-                    var field = typeof(Spell).GetField(fieldName);
-                    if (field != null && field.FieldType == typeof(float))
-                    {
-                        float original = (float)field.GetValue(spell);
-                        float transformed = transform(spell, fieldName, original);
-                        field.SetValue(spell, transformed);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Applies Harmony patches to the Init method of all SpellObject types.
-        /// Useful for modifying spell behavior globally at initialization time.
-        /// </summary>
-        /// <param name="harmony">The Harmony instance to use for patching</param>
-        /// <param name="prefixMethod">Optional prefix method to apply before Init</param>
-        /// <param name="postfixMethod">Optional postfix method to apply after Init</param>
-        public static void PatchAllSpellObjectInit(Harmony harmony, MethodInfo prefixMethod = null, MethodInfo postfixMethod = null)
-        {
-            foreach (SpellName name in Enum.GetValues(typeof(SpellName)))
-            {
-                string fullTypeName = Spells.SpellModificationSystem.GetSpellObjectTypeName(name);
-
-                Type spellType = AppDomain.CurrentDomain.GetAssemblies()
-                    .Select(a => a.GetType(fullTypeName))
-                    .FirstOrDefault(t => t != null);
-
-                if (spellType == null)
-                    continue;
-
-                MethodInfo initMethod = spellType.GetMethod("Init", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (initMethod == null)
-                    continue;
-
-                HarmonyMethod prefix = prefixMethod != null ? new HarmonyMethod(prefixMethod) : null;
-                HarmonyMethod postfix = postfixMethod != null ? new HarmonyMethod(postfixMethod) : null;
-
-                harmony.Patch(initMethod, prefix: prefix, postfix: postfix);
             }
         }
 

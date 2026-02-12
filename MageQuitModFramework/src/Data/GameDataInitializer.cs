@@ -24,13 +24,13 @@ namespace MageQuitModFramework.Data
         /// Keyed by spell name, then attribute name.
         /// </summary>
         public static Dictionary<SpellName, Dictionary<string, float>> DefaultClassAttributes { get; private set; } = [];
-        
+
         /// <summary>
         /// Default spell table entries from the game's SpellManager.
         /// Contains baseline cooldown, windUp, windDown, and other spell properties.
         /// </summary>
         public static Dictionary<SpellName, Spell> DefaultSpellTable { get; private set; } = [];
-        
+
         /// <summary>
         /// Whether game data has been loaded and is available for use.
         /// </summary>
