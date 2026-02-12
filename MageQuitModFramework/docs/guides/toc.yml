@@ -1,0 +1,12 @@
+- name: Guides
+  href: index.md
+- name: Data
+  href: data/index.md
+- name: Modding
+  href: modding/index.md
+- name: Spells
+  href: spells/index.md
+- name: UI
+  href: ui/index.md
+- name: Utilities
+  href: utilities/index.md
