@@ -109,6 +109,23 @@ namespace MageQuitModFramework.UI
         }
 
         /// <summary>
+        /// Draws a toggle with optional label in a single horizontal row.
+        /// </summary>
+        /// <param name="label">Label text shown to the left of the toggle</param>
+        /// <param name="value">Current toggle value</param>
+        /// <param name="labelWidth">Label width in pixels (default 200)</param>
+        /// <returns>Updated toggle value</returns>
+        public static bool Toggle(string label, bool value, float labelWidth = 200)
+        {
+            GUILayout.BeginHorizontal();
+            if (!string.IsNullOrEmpty(label))
+                GUILayout.Label(label, GUILayout.Width(labelWidth));
+            bool result = GUILayout.Toggle(value, "");
+            GUILayout.EndHorizontal();
+            return result;
+        }
+
+        /// <summary>
         /// Adds vertical spacing in the layout.
         /// </summary>
         /// <param name="pixels">Amount of vertical space in pixels (default 10)</param>

@@ -36,6 +36,12 @@ namespace MageQuitModFramework.UI
         /// Default is 100.
         /// </summary>
         public int Priority { get; set; } = 100;
+
+        /// <summary>
+        /// Whether the mod is currently enabled. When disabled, the mod's UI content will not be drawn.
+        /// Default is true.
+        /// </summary>
+        public bool IsEnabled { get; set; } = true;
     }
 
     /// <summary>
