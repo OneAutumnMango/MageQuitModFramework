@@ -117,7 +117,7 @@ namespace MageQuitModFramework.Utilities
         /// <param name="rpcName">The name of the RPC channel</param>
         /// <param name="target">The PhotonTargets to send to</param>
         /// <param name="args">Arguments to pass to the RPC handlers</param>
-        public void SendRpcLocal(string rpcName, PhotonTargets target, params object[] args)
+        public void SendRpcLocal(string rpcName, PhotonTargets target, params object[] args, bool ownerOnly = false)
         {
             if (!PhotonNetwork.connected)
             {
@@ -131,9 +131,9 @@ namespace MageQuitModFramework.Utilities
                 return;
             }
 
-            if (!photonView.isMine)
+            if (ownerOnly && !photonView.isMine)
             {
-                Debug.LogWarning($"[PhotonRpcManager] Cannot send RPC '{rpcName}' - PhotonView is not owned by this client");
+                Debug.LogWarning($"[PhotonRpcManager] Cannot send RPC '{rpcName}' - Only owner can send this RPC");
                 return;
             }
 
