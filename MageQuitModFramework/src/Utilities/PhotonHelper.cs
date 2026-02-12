@@ -78,9 +78,7 @@ namespace MageQuitModFramework.Utilities
         /// <param name="rpcName">The name of the RPC channel</param>
         /// <param name="args">Arguments to pass to the RPC handlers</param>
         public void SendRpc(string rpcName, params object[] args)
-        {
-            SendRpc(rpcName, PhotonTargets.All, args);
-        }
+            => SendRpc(rpcName, PhotonTargets.All, args);
 
         /// <summary>
         /// Send an RPC to specified targets.
@@ -89,6 +87,17 @@ namespace MageQuitModFramework.Utilities
         /// <param name="target">The PhotonTargets to send to (All, Others, MasterClient, etc.)</param>
         /// <param name="args">Arguments to pass to the RPC handlers</param>
         public void SendRpc(string rpcName, PhotonTargets target, params object[] args)
+            => SendRpc(rpcName, target, false, args);
+
+
+        /// <summary>
+        /// Send an RPC to specified targets with ownership control.
+        /// </summary>
+        /// <param name="rpcName">The name of the RPC channel</param>
+        /// <param name="target">The PhotonTargets to send to (All, Others, MasterClient, etc.)</param>
+        /// <param name="ownerOnly">If true, only the PhotonView owner can send</param>
+        /// <param name="args">Arguments to pass to the RPC handlers</param>
+        public void SendRpc(string rpcName, PhotonTargets target, bool ownerOnly, params object[] args)
         {
             if (!PhotonNetwork.connected)
             {
@@ -102,9 +111,9 @@ namespace MageQuitModFramework.Utilities
                 return;
             }
 
-            if (!photonView.isMine)
+            if (ownerOnly && !photonView.isMine)
             {
-                Debug.LogWarning($"[PhotonRpcManager] Cannot send RPC '{rpcName}' - PhotonView is not owned by this client");
+                Debug.LogWarning($"[PhotonRpcManager] Cannot send RPC '{rpcName}' - Only owner can send this RPC");
                 return;
             }
 
@@ -112,12 +121,24 @@ namespace MageQuitModFramework.Utilities
         }
 
         /// <summary>
-        /// Send an RPC using RPCLocal (executes locally immediately, then sends to network).
+        /// Send an RPC with offline fallback. If connected to Photon, sends the RPC to network targets.
+        /// If offline, executes the handler locally only.
         /// </summary>
         /// <param name="rpcName">The name of the RPC channel</param>
-        /// <param name="target">The PhotonTargets to send to</param>
+        /// <param name="target">The PhotonTargets to send to when online</param>
         /// <param name="args">Arguments to pass to the RPC handlers</param>
-        public void SendRpcLocal(string rpcName, PhotonTargets target, params object[] args, bool ownerOnly = false)
+        public void SendRpcLocal(string rpcName, PhotonTargets target, params object[] args)
+            => SendRpcLocal(rpcName, target, false, args);
+
+        /// <summary>
+        /// Send an RPC with offline fallback and ownership control. If connected to Photon, sends the RPC to network targets.
+        /// If offline, executes the handler locally only.
+        /// </summary>
+        /// <param name="rpcName">The name of the RPC channel</param>
+        /// <param name="target">The PhotonTargets to send to when online</param>
+        /// <param name="ownerOnly">If true, only the PhotonView owner can send</param>
+        /// <param name="args">Arguments to pass to the RPC handlers</param>
+        public void SendRpcLocal(string rpcName, PhotonTargets target, bool ownerOnly, params object[] args)
         {
             if (!PhotonNetwork.connected)
             {
@@ -147,20 +168,19 @@ namespace MageQuitModFramework.Utilities
         [PunRPC]
         private void HandleRpc(string rpcName, object[] args)
         {
-            if (_rpcHandlers.ContainsKey(rpcName))
-            {
-                try
-                {
-                    _rpcHandlers[rpcName]?.Invoke(args);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError($"[PhotonRpcManager] Error executing RPC handler '{rpcName}': {ex.Message}\n{ex.StackTrace}");
-                }
-            }
-            else
+            if (!_rpcHandlers.ContainsKey(rpcName))
             {
                 Debug.LogWarning($"[PhotonRpcManager] No handler registered for RPC '{rpcName}'");
+                return;
+            }
+
+            try
+            {
+                _rpcHandlers[rpcName]?.Invoke(args);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[PhotonRpcManager] Error executing RPC handler '{rpcName}': {ex.Message}\n{ex.StackTrace}");
             }
         }
 
