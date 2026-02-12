@@ -1,11 +1,15 @@
+using System;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
+using Photon;
 using MageQuitModFramework;
+using MageQuitModFramework.Modding;
 using MageQuitModFramework.UI;
 using MageQuitModFramework.Utilities;
+using ExampleMod.Modules;
 
 namespace ExampleMod
 {
@@ -14,67 +18,76 @@ namespace ExampleMod
     public class ExampleModPlugin : BaseUnityPlugin
     {
         private static ManualLogSource _log;
-        private Harmony _harmony;
-        private bool _customBehaviorEnabled = false;
+        private ModuleManager _moduleManager;
+        private bool _exampleToggleValue = false;
+        private PhotonRpcManager _rpcManager;
+        private int _rpcTestCount = 0;
 
         private void Awake()
         {
             _log = Logger;
             _log.LogInfo("Example Mod loading...");
 
-            _harmony = new Harmony("com.example.spellmod");
-            _harmony.PatchAll();
+            // Register mod with ModManager and get ModuleManager instance
+            _moduleManager = ModManager.RegisterMod("Example Mod", "com.example.spellmod");
+
+            // Register and load the spell modification module
+            var spellModule = new ExampleSpellModule(_log);
+            _moduleManager.RegisterModule(spellModule);
+            _moduleManager.LoadModule(spellModule.ModuleName);
 
             ModUIRegistry.RegisterMod(
                 "Example Mod",
-                "A simple example mod demonstrating framework usage",
+                "Demonstrates framework features: modules, UI components, and Photon RPC",
                 DrawModUI,
                 priority: 50
             );
+
+            _rpcManager = PhotonRpcManager.CreatePersistent("ExampleModRpcManager");
+            _rpcManager.RegisterHandler("ExampleModPing", args =>
+            {
+                _rpcTestCount++;
+                _log.LogInfo($"ExampleMod RPC received #{_rpcTestCount}: {string.Join(", ", args ?? Array.Empty<object>())}");
+            });
 
             _log.LogInfo("Example Mod loaded!");
         }
 
         private void DrawModUI()
         {
-            UnityEngine.GUILayout.Label("Example Mod Settings");
-            UnityEngine.GUILayout.Space(10);
-            
-            UnityEngine.GUILayout.Label("This mod demonstrates:");
-            UnityEngine.GUILayout.Label("• Spell modification via GameModificationHelpers");
-            UnityEngine.GUILayout.Label("• UI registration with ModUIRegistry");
-            UnityEngine.GUILayout.Label("• Simple interactive controls");
-            UnityEngine.GUILayout.Space(10);
-            
-            UnityEngine.GUILayout.BeginHorizontal();
-            UnityEngine.GUILayout.Label("Enable Custom Behavior:", UnityEngine.GUILayout.Width(200));
-            bool newValue = UnityEngine.GUILayout.Toggle(_customBehaviorEnabled, "");
-            if (newValue != _customBehaviorEnabled)
+            UIComponents.Section("Example Mod Settings", () =>
             {
-                _customBehaviorEnabled = newValue;
-                _log.LogInfo($"Custom behavior toggled: {_customBehaviorEnabled}");
+                UIComponents.Label("This mod demonstrates:", StyleManager.Gold);
+                UIComponents.Label("- Module system (toggleable spell modifications)");
+                UIComponents.Label("- UI components and StyleManager");
+                UIComponents.Label("- Photon RPC helpers");
+                UIComponents.Label("- ModUIRegistry integration");
+                UIComponents.Label("This mod MUST be loaded before opening a game or it won't work, and will patch the game until quitting");
+            });
+
+            bool newValue = UIComponents.Toggle("Example Toggle:", _exampleToggleValue);
+            if (newValue != _exampleToggleValue)
+            {
+                _exampleToggleValue = newValue;
+                _log.LogInfo($"Example toggle changed: {_exampleToggleValue}");
             }
-            UnityEngine.GUILayout.EndHorizontal();
-        }
+            UIComponents.Label($"Toggle value: {_exampleToggleValue}");
 
-        [HarmonyPatch(typeof(SpellManager), "Awake")]
-        public static class ExamplePatch
-        {
-            static void Postfix(SpellManager __instance)
+            UIComponents.Space();
+            UIComponents.Label($"Photon connected: {PhotonNetwork.connected}");
+            UIComponents.Label($"RPC tests received: {_rpcTestCount}");
+
+            if (UIComponents.Button("Send RPC Test", 200, StyleManager.Green))
             {
-                _log.LogInfo("SpellManager awakened - modifying spells...");
-                
-                // Example: Make fireball faster
-                GameModificationHelpers.ModifySpellTableEntry(__instance, SpellName.Fireball, spell =>
+                if (_rpcManager == null)
                 {
-                    spell.cooldown *= 0.5f;  // 50% faster cooldown
-                    spell.initialVelocity *= 2f;  // 100% faster projectile
-                    _log.LogInfo($"Modified Fireball: cooldown={spell.cooldown}, velocity={spell.initialVelocity}");
-                });
-
-                // Example: Access private fields
-                var privateValue = GameModificationHelpers.GetPrivateField<float>(__instance, "somePrivateField");
-                GameModificationHelpers.SetPrivateField(__instance, "somePrivateField", privateValue * 1.5f);
+                    _log.LogWarning("RPC manager not initialized.");
+                }
+                else
+                {
+                    _rpcManager.SendRpcLocal("ExampleModPing", PhotonTargets.All, "ping", Time.time);
+                    _log.LogInfo("RPC test sent.");
+                }
             }
         }
     }

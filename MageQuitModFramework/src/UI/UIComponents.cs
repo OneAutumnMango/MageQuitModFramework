@@ -16,9 +16,9 @@ namespace MageQuitModFramework.UI
         /// <param name="modName">The name of the mod owning the module</param>
         /// <param name="moduleName">The name of the module to toggle</param>
         /// <param name="moduleManager">The module manager controlling the module</param>
-        /// <param name="buttonWidth">Width of the button in pixels (default 200)</param>
+        /// <param name="buttonWidth">Width of the button in pixels (default 300)</param>
         /// <returns>True if the button was clicked and module state changed, false otherwise</returns>
-        public static bool DrawModuleToggle(string modName, string moduleName, ModuleManager moduleManager, float buttonWidth = 200)
+        public static bool DrawModuleToggle(string modName, string moduleName, ModuleManager moduleManager, float buttonWidth = 300)
         {
             bool isLoaded = moduleManager.IsModuleLoaded(moduleName);
             string buttonText = isLoaded ? $"Unload {moduleName}" : $"Load {moduleName}";
