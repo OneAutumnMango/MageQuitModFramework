@@ -34,7 +34,6 @@ namespace ExampleMod
             // Register and load the spell modification module
             var spellModule = new ExampleSpellModule(_log);
             _moduleManager.RegisterModule(spellModule);
-            _moduleManager.LoadModule(spellModule.ModuleName);
 
             ModUIRegistry.RegisterMod(
                 "Example Mod",

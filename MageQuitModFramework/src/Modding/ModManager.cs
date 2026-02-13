@@ -30,7 +30,7 @@ namespace MageQuitModFramework.Modding
     /// </summary>
     public static class ModManager
     {
-        private static readonly Dictionary<string, ModEntry> _mods = new();
+        private static readonly Dictionary<string, ModEntry> _mods = [];
 
         /// <summary>
         /// Registers a new mod with the framework and creates its module manager.
@@ -74,6 +74,22 @@ namespace MageQuitModFramework.Modding
                 return true;
             }
             moduleManager = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if a module is currently loaded by any registered mod.
+        /// Good for cross-mod compatibility checks without needing direct references to other mods.
+        /// </summary>
+        /// <param name="moduleName">The name of the module to check</param>
+        /// <returns>True if the module exists and is loaded, false otherwise</returns>
+        public static bool IsModuleLoaded(string moduleName)
+        {
+            foreach (var mod in _mods.Values)
+            {
+                if (mod.ModuleManager.IsModuleLoaded(moduleName))
+                    return true;
+            }
             return false;
         }
 

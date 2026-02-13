@@ -254,6 +254,120 @@ namespace MageQuitModFramework.Utilities
     /// </summary>
     public static class PhotonHelper
     {
+        private static Dictionary<byte, Action<object[]>> _eventHandlers = new Dictionary<byte, Action<object[]>>();
+        private static PhotonEventListener _globalEventListener;
+
+        /// <summary>
+        /// Initialize the global Photon event listening system.
+        /// Safe to call multiple times—only initializes once.
+        /// </summary>
+        public static void InitializeEventSystem()
+        {
+            if (_globalEventListener != null)
+            {
+                Debug.Log("[PhotonHelper] Event system already initialized");
+                return;
+            }
+
+            GameObject listenerObj = new GameObject("PhotonEventListener");
+            _globalEventListener = listenerObj.AddComponent<PhotonEventListener>();
+            UnityEngine.Object.DontDestroyOnLoad(listenerObj);
+            Debug.Log("[PhotonHelper] Global event system initialized");
+        }
+
+        /// <summary>
+        /// Register a handler for a custom Photon event.
+        /// </summary>
+        /// <param name="eventCode">The event code (0-199 reserved for Photon, 200+ for custom)</param>
+        /// <param name="callback">The callback to invoke when the event is received</param>
+        public static void RegisterEventHandler(byte eventCode, Action<object[]> callback)
+        {
+            if (callback == null)
+            {
+                Debug.LogError($"[PhotonHelper] Cannot register null callback for event {eventCode}");
+                return;
+            }
+
+            if (!_eventHandlers.ContainsKey(eventCode))
+            {
+                _eventHandlers[eventCode] = callback;
+                Debug.Log($"[PhotonHelper] Registered event handler for event code {eventCode} (total handlers: {_eventHandlers.Count})");
+            }
+            else
+            {
+                _eventHandlers[eventCode] += callback;
+                Debug.Log($"[PhotonHelper] Added additional handler for event code {eventCode}");
+            }
+        }
+
+        /// <summary>
+        /// Unregister a handler for a custom Photon event.
+        /// </summary>
+        /// <param name="eventCode">The event code</param>
+        /// <param name="callback">The callback to remove</param>
+        public static void UnregisterEventHandler(byte eventCode, Action<object[]> callback)
+        {
+            if (_eventHandlers.ContainsKey(eventCode))
+            {
+                _eventHandlers[eventCode] -= callback;
+                if (_eventHandlers[eventCode] == null)
+                    _eventHandlers.Remove(eventCode);
+            }
+        }
+
+        /// <summary>
+        /// Raise a custom Photon event to all clients or specific targets.
+        /// </summary>
+        /// <param name="eventCode">The event code (use 200+ for custom events)</param>
+        /// <param name="data">Event data parameters</param>
+        /// <param name="targets">Which clients to send to (defaults to All)</param>
+        public static void RaiseEvent(byte eventCode, object[] data, ReceiverGroup targets = ReceiverGroup.All)
+        {
+            Debug.Log($"[PhotonHelper] RaiseEvent called with eventCode={eventCode}, targets={targets}");
+
+            if (!PhotonNetwork.connected)
+            {
+                Debug.LogWarning($"[PhotonHelper] Cannot raise event {eventCode} - not connected to Photon network");
+                // Still invoke locally so offline testing works
+                if (_eventHandlers.ContainsKey(eventCode))
+                {
+                    _eventHandlers[eventCode]?.Invoke(data);
+                }
+                return;
+            }
+
+            Debug.Log($"[PhotonHelper] About to call PhotonNetwork.RaiseEvent with eventCode={eventCode}, receivers={targets}");
+            PhotonNetwork.RaiseEvent(eventCode, data, true, new RaiseEventOptions { Receivers = targets });
+            Debug.Log($"[PhotonHelper] Event {eventCode} raised to {targets}");
+        }
+
+        /// <summary>
+        /// Internal handler for all custom Photon events. Attach this to a PhotonBehaviour.
+        /// </summary>
+        public static void OnEvent(byte eventCode, object content, int playerNr)
+        {
+            Debug.Log($"[PhotonHelper] OnEvent called: eventCode={eventCode}, playerNr={playerNr}, hasHandler={_eventHandlers.ContainsKey(eventCode)}");
+
+            if (_eventHandlers.ContainsKey(eventCode))
+            {
+                try
+                {
+                    var args = content is object[] arr ? arr : new[] { content };
+                    Debug.Log($"[PhotonHelper] Invoking handler for event {eventCode} with {args.Length} args");
+                    _eventHandlers[eventCode]?.Invoke(args);
+                    Debug.Log($"[PhotonHelper] Handler for event {eventCode} completed");
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[PhotonHelper] Error executing handler for event {eventCode}: {ex.Message}\n{ex.StackTrace}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[PhotonHelper] No handler registered for event {eventCode}. Available handlers: {string.Join(", ", _eventHandlers.Keys)}");
+            }
+        }
+
         /// <summary>
         /// Checks if we're currently connected to the Photon network.
         /// </summary>
@@ -318,6 +432,31 @@ namespace MageQuitModFramework.Utilities
 
             photonView.TransferOwnership(PhotonNetwork.player);
             return true;
+        }
+    }
+
+    /// <summary>
+    /// Internal MonoBehaviour that listens for Photon events and routes them to PhotonHelper handlers.
+    /// Created automatically by PhotonHelper.InitializeEventSystem().
+    /// </summary>
+    public class PhotonEventListener : Photon.MonoBehaviour
+    {
+        private void OnEnable()
+        {
+            PhotonNetwork.OnEventCall += HandlePhotonEvent;
+            Debug.Log("[PhotonEventListener] OnEnable: subscribed to PhotonNetwork.OnEventCall");
+        }
+
+        private void OnDisable()
+        {
+            PhotonNetwork.OnEventCall -= HandlePhotonEvent;
+            Debug.Log("[PhotonEventListener] OnDisable: unsubscribed from PhotonNetwork.OnEventCall");
+        }
+
+        private void HandlePhotonEvent(byte eventCode, object content, int senderID)
+        {
+            Debug.Log($"[PhotonEventListener] HandlePhotonEvent: eventCode={eventCode}, senderID={senderID}");
+            PhotonHelper.OnEvent(eventCode, content, senderID);
         }
     }
 }

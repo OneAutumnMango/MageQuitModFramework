@@ -4,6 +4,7 @@ using HarmonyLib;
 using UnityEngine;
 using MageQuitModFramework.UI;
 using MageQuitModFramework.Modding;
+using MageQuitModFramework.Utilities;
 
 namespace MageQuitModFramework
 {
@@ -42,6 +43,8 @@ namespace MageQuitModFramework
             DontDestroyOnLoad(menuObj);
             _modMenu = menuObj.AddComponent<DynamicModMenu>();
             _modMenu.Initialize();
+
+            PhotonHelper.InitializeEventSystem();
 
             Log.LogInfo("Dynamic mod menu created and ready");
         }
