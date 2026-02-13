@@ -58,6 +58,15 @@ namespace MageQuitModFramework.Spells
         }
 
         /// <summary>
+        /// Creates a deep copy of this attribute modifier.
+        /// </summary>
+        /// <returns>A new AttributeModifier with the same Base and Mult values</returns>
+        public AttributeModifier Copy()
+        {
+            return new AttributeModifier(Base, Mult);
+        }
+
+        /// <summary>
         /// Implicit conversion to float returns the computed Value.
         /// </summary>
         public static implicit operator float(AttributeModifier mod) => mod.Value;

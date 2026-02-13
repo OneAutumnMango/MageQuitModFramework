@@ -86,8 +86,8 @@ namespace MageQuitModFramework.Modding
 
             try
             {
-                OnUnload(harmony);
                 IsLoaded = false;
+                OnUnload(harmony);
                 FrameworkPlugin.Log?.LogInfo($"{ModuleName} unloaded successfully");
             }
             catch (Exception ex)

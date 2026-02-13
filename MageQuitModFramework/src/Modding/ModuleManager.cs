@@ -43,12 +43,18 @@ namespace MageQuitModFramework.Modding
         /// Loads a registered module and applies its Harmony patches.
         /// </summary>
         /// <param name="moduleName">The name of the module to load</param>
-        /// <returns>True if loaded successfully, false if module not found</returns>
+        /// <returns>True if loaded successfully, false if module not found or already loaded</returns>
         public bool LoadModule(string moduleName)
         {
             if (!_modules.TryGetValue(moduleName, out var module))
             {
                 FrameworkPlugin.Log?.LogError($"Module {moduleName} not found");
+                return false;
+            }
+
+            if (module.IsLoaded)
+            {
+                FrameworkPlugin.Log?.LogWarning($"Module {moduleName} is already loaded");
                 return false;
             }
 
@@ -65,12 +71,18 @@ namespace MageQuitModFramework.Modding
         /// Unloads a module and removes its Harmony patches.
         /// </summary>
         /// <param name="moduleName">The name of the module to unload</param>
-        /// <returns>True if unloaded successfully, false if module not found</returns>
+        /// <returns>True if unloaded successfully, false if module not found or already unloaded</returns>
         public bool UnloadModule(string moduleName)
         {
             if (!_modules.TryGetValue(moduleName, out var module))
             {
                 FrameworkPlugin.Log?.LogError($"Module {moduleName} not found");
+                return false;
+            }
+
+            if (!module.IsLoaded)
+            {
+                FrameworkPlugin.Log?.LogWarning($"Module {moduleName} is not loaded");
                 return false;
             }
 

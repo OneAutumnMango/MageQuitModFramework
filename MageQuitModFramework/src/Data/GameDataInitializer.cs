@@ -64,7 +64,7 @@ namespace MageQuitModFramework.Data
 
             PopulateDefaultClassAttributes();
 
-            SpellModificationSystem.Initialize(DefaultSpellTable, DefaultClassAttributes);
+            SpellModificationSystem.InitializeDefaultTable(DefaultSpellTable, DefaultClassAttributes);
 
             FrameworkPlugin.Log.LogInfo("Game data loaded successfully");
             OnGameDataLoaded?.Invoke();

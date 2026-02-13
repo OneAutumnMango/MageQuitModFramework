@@ -249,5 +249,136 @@ namespace MageQuitModFramework.Tests.Framework.Loading
             var moduleNames = _moduleManager.GetAllModuleNames();
             Assert.Empty(moduleNames);
         }
+
+        [Fact]
+        public void LoadModule_DoesNotIncrement_WhenCalledMultipleTimes()
+        {
+            var module = new TestModule("TestMod");
+            _moduleManager.RegisterModule(module);
+
+            _moduleManager.LoadModule("TestMod");
+            _moduleManager.LoadModule("TestMod");
+            _moduleManager.LoadModule("TestMod");
+
+            Assert.Equal(1, module.LoadCount);
+        }
+
+        [Fact]
+        public void UnloadModule_DoesNotDecrement_WhenCalledMultipleTimes()
+        {
+            var module = new TestModule("TestMod");
+            _moduleManager.RegisterModule(module);
+            _moduleManager.LoadModule("TestMod");
+
+            _moduleManager.UnloadModule("TestMod");
+            _moduleManager.UnloadModule("TestMod");
+            _moduleManager.UnloadModule("TestMod");
+
+            Assert.Equal(1, module.UnloadCount);
+        }
+
+        [Fact]
+        public void LoadModule_ReturnsFalse_WhenModuleAlreadyLoaded()
+        {
+            var module = new TestModule("TestMod");
+            _moduleManager.RegisterModule(module);
+            _moduleManager.LoadModule("TestMod");
+
+            var result = _moduleManager.LoadModule("TestMod");
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void UnloadModule_ReturnsFalse_WhenModuleAlreadyUnloaded()
+        {
+            var module = new TestModule("TestMod");
+            _moduleManager.RegisterModule(module);
+
+            var result = _moduleManager.UnloadModule("TestMod");
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void RegisterModule_WithSameNameTwice_OnlyKeepsFirstModule()
+        {
+            var module1 = new TestModule("Duplicate");
+            var module2 = new TestModule("Duplicate");
+
+            _moduleManager.RegisterModule(module1);
+            _moduleManager.RegisterModule(module2);
+
+            _moduleManager.LoadModule("Duplicate");
+
+            // Only first module should be registered
+            Assert.Equal(1, module1.LoadCount);
+            Assert.Equal(0, module2.LoadCount);
+        }
+
+        [Fact]
+        public void LoadModule_CreatesHarmonyInstance_OnFirstLoad()
+        {
+            var module = new TestModule("TestMod");
+            _moduleManager.RegisterModule(module);
+
+            var result = _moduleManager.LoadModule("TestMod");
+
+            Assert.True(result);
+            Assert.True(module.IsLoaded);
+        }
+
+        [Fact]
+        public void LoadModule_ReusesHarmonyInstance_OnReload()
+        {
+            var module = new TestModule("TestMod");
+            _moduleManager.RegisterModule(module);
+
+            _moduleManager.LoadModule("TestMod");
+            _moduleManager.UnloadModule("TestMod");
+            _moduleManager.LoadModule("TestMod");
+
+            Assert.Equal(2, module.LoadCount);
+        }
+
+        [Fact]
+        public void UnloadModule_WithInconsistentState_DoesNotCallUnload()
+        {
+            // This tests defensive behavior: if a module reports IsLoaded=true but was never 
+            // actually loaded through LoadModule (no Harmony instance), Unload is not called
+            var module = new TestModule("TestMod") { IsLoaded = true };
+            _moduleManager.RegisterModule(module);
+
+            var result = _moduleManager.UnloadModule("TestMod");
+
+            Assert.True(result); // Still returns true (doesn't fail)
+            Assert.Equal(0, module.UnloadCount); // But Unload not called (no Harmony instance)
+        }
+
+        [Fact]
+        public void LoadModule_WhenModuleAlreadyLoaded_SkipsLoad()
+        {
+            var module = new TestModule("TestMod");
+            _moduleManager.RegisterModule(module);
+            _moduleManager.LoadModule("TestMod");
+            var initialLoadCount = module.LoadCount;
+
+            var result = _moduleManager.LoadModule("TestMod");
+
+            Assert.False(result);
+            Assert.Equal(initialLoadCount, module.LoadCount);
+        }
+
+        [Fact]
+        public void UnloadModule_WhenModuleNotLoaded_SkipsUnload()
+        {
+            var module = new TestModule("TestMod") { IsLoaded = false };
+            _moduleManager.RegisterModule(module);
+
+            var result = _moduleManager.UnloadModule("TestMod");
+
+            Assert.False(result);
+            Assert.Equal(0, module.UnloadCount);
+        }
     }
 }

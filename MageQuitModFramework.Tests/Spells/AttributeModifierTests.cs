@@ -170,5 +170,34 @@ namespace MageQuitModFramework.Tests
 
             Assert.Equal(baseValue * newMult, modifier.Value);
         }
+
+        [Fact]
+        public void Copy_CreatesIndependentCopy()
+        {
+            var baseValue = 100f;
+            var mult = 2f;
+            var original = new AttributeModifier(baseValue, mult);
+
+            var copy = original.Copy();
+
+            Assert.Equal(original.Base, copy.Base);
+            Assert.Equal(original.Mult, copy.Mult);
+            Assert.Equal(original.Value, copy.Value);
+        }
+
+        [Fact]
+        public void Copy_ChangesToCopyDoNotAffectOriginal()
+        {
+            var original = new AttributeModifier(100f, 2f);
+            var copy = original.Copy();
+
+            copy.AddMultiplier(0.5f);
+            copy.Base = 200f;
+
+            Assert.Equal(100f, original.Base);
+            Assert.Equal(2f, original.Mult);
+            Assert.Equal(200f, copy.Base);
+            Assert.Equal(2.5f, copy.Mult);
+        }
     }
 }

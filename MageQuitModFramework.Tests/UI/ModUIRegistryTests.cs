@@ -227,5 +227,37 @@ namespace MageQuitModFramework.Tests.Framework.UI
             ModUIRegistry.TryGetMod("TestMod", out var entry);
             Assert.NotNull(entry.DrawIMGUI);
         }
+
+        [Fact]
+        public void GetAllMods_OrderStabilityWithSamePriority()
+        {
+            ModUIRegistry.RegisterMod("ModA", "Desc", () => { }, 100);
+            ModUIRegistry.RegisterMod("ModB", "Desc", () => { }, 100);
+            ModUIRegistry.RegisterMod("ModC", "Desc", () => { }, 100);
+
+            var mods = ModUIRegistry.GetAllMods().ToList();
+
+            // All have same priority, should maintain insertion order
+            Assert.Equal(3, mods.Count);
+            // Order should be stable
+            Assert.Equal("ModA", mods[0].ModName);
+            Assert.Equal("ModB", mods[1].ModName);
+            Assert.Equal("ModC", mods[2].ModName);
+        }
+
+        [Fact]
+        public void ModUIEntry_PreservesIsExpandedState()
+        {
+            ModUIRegistry.RegisterMod("TestMod", "Desc", () => { });
+            ModUIRegistry.TryGetMod("TestMod", out var entry);
+            entry.IsExpanded = true;
+
+            // Re-register should preserve the entry object
+            ModUIRegistry.RegisterMod("TestMod", "Updated Desc", () => { });
+            ModUIRegistry.TryGetMod("TestMod", out var updatedEntry);
+
+            // IsExpanded state should be preserved in the same entry object
+            Assert.True(updatedEntry.IsExpanded);
+        }
     }
 }

@@ -164,5 +164,52 @@ namespace MageQuitModFramework.Tests
             Assert.True(modifiers.TryGetModifier("initialVelocity", out var iv) && iv == velocity);
             Assert.True(modifiers.TryGetModifier("HEAL", out var h) && h == heal);
         }
+
+        [Fact]
+        public void Copy_CreatesDeepCopy()
+        {
+            var original = new SpellModifiers
+            {
+                DAMAGE          = new AttributeModifier(100f, 2f),
+                RADIUS          = new AttributeModifier(50f, 1.5f),
+                POWER           = new AttributeModifier(200f, 3f),
+                Y_POWER         = new AttributeModifier(150f, 2.5f),
+                cooldown        = new AttributeModifier(1f, 0.5f),
+                windUp          = new AttributeModifier(2f, 1.2f),
+                windDown        = new AttributeModifier(3f, 1.8f),
+                initialVelocity = new AttributeModifier(10f, 4f),
+                HEAL            = new AttributeModifier(75f, 2.2f)
+            };
+
+            var copy = original.Copy();
+
+            Assert.Equal(original.DAMAGE.Base, copy.DAMAGE.Base);
+            Assert.Equal(original.DAMAGE.Mult, copy.DAMAGE.Mult);
+            Assert.Equal(original.RADIUS.Value, copy.RADIUS.Value);
+            Assert.NotSame(original.DAMAGE, copy.DAMAGE);
+        }
+
+        [Fact]
+        public void Copy_ChangesToCopyDoNotAffectOriginal()
+        {
+            var original = new SpellModifiers
+            {
+                DAMAGE = new AttributeModifier(100f, 2f),
+                RADIUS = new AttributeModifier(50f, 1.5f),
+                POWER  = new AttributeModifier(200f, 3f),
+                Y_POWER = new AttributeModifier(150f, 2.5f),
+                cooldown = new AttributeModifier(1f, 0.5f),
+                windUp = new AttributeModifier(2f, 1.2f),
+                windDown = new AttributeModifier(3f, 1.8f),
+                initialVelocity = new AttributeModifier(10f, 4f),
+                HEAL = new AttributeModifier(75f, 2.2f)
+            };
+
+            var copy = original.Copy();
+            copy.DAMAGE.AddMultiplier(1f);
+
+            Assert.Equal(2f, original.DAMAGE.Mult);
+            Assert.Equal(3f, copy.DAMAGE.Mult);
+        }
     }
 }

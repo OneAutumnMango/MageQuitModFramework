@@ -85,5 +85,25 @@ namespace MageQuitModFramework.Spells
             }
             return false;
         }
+
+        /// <summary>
+        /// Creates a deep copy of this spell modifiers set.
+        /// </summary>
+        /// <returns>A new SpellModifiers with copied AttributeModifiers</returns>
+        public SpellModifiers Copy()
+        {
+            return new SpellModifiers
+            {
+                DAMAGE           = DAMAGE.Copy(),
+                RADIUS           = RADIUS.Copy(),
+                POWER            = POWER.Copy(),
+                Y_POWER          = Y_POWER.Copy(),
+                cooldown         = cooldown.Copy(),
+                windUp           = windUp.Copy(),
+                windDown         = windDown.Copy(),
+                initialVelocity  = initialVelocity.Copy(),
+                HEAL             = HEAL.Copy()
+            };
+        }
     }
 }

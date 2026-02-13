@@ -61,13 +61,23 @@ namespace MageQuitModFramework.UI
         /// <param name="priority">Display priority for sorting (default 100, lower values appear first)</param>
         public static void RegisterMod(string modName, string description, Action drawIMGUI, int priority = 100)
         {
-            _entries[modName] = new ModUIEntry
+            // Preserve existing entry state if updating
+            if (_entries.TryGetValue(modName, out var existingEntry))
             {
-                ModName = modName,
-                Description = description,
-                DrawIMGUI = drawIMGUI,
-                Priority = priority
-            };
+                existingEntry.Description = description;
+                existingEntry.DrawIMGUI = drawIMGUI;
+                existingEntry.Priority = priority;
+            }
+            else
+            {
+                _entries[modName] = new ModUIEntry
+                {
+                    ModName = modName,
+                    Description = description,
+                    DrawIMGUI = drawIMGUI,
+                    Priority = priority
+                };
+            }
             _sortedEntries = null;
         }
 

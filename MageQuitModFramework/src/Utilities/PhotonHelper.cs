@@ -222,17 +222,11 @@ namespace MageQuitModFramework.Utilities
             }
 
             PhotonRpcManager manager = gameObject.GetComponent<PhotonRpcManager>();
-            if (manager == null)
-            {
-                manager = gameObject.AddComponent<PhotonRpcManager>();
-            }
+            manager ??= gameObject.AddComponent<PhotonRpcManager>();
 
             // Ensure PhotonView exists
             PhotonView pv = gameObject.GetPhotonView();
-            if (pv == null)
-            {
-                pv = gameObject.AddComponent<PhotonView>();
-            }
+            pv ??= gameObject.AddComponent<PhotonView>();
 
             return manager;
         }
@@ -245,7 +239,7 @@ namespace MageQuitModFramework.Utilities
         public static PhotonRpcManager Find(string name)
         {
             GameObject obj = GameObject.Find(name);
-            return obj != null ? obj.GetComponent<PhotonRpcManager>() : null;
+            return obj?.GetComponent<PhotonRpcManager>();
         }
     }
 
@@ -329,9 +323,9 @@ namespace MageQuitModFramework.Utilities
             {
                 Debug.LogWarning($"[PhotonHelper] Cannot raise event {eventCode} - not connected to Photon network");
                 // Still invoke locally so offline testing works
-                if (_eventHandlers.ContainsKey(eventCode))
+                if (_eventHandlers.TryGetValue(eventCode, out Action<object[]> action))
                 {
-                    _eventHandlers[eventCode]?.Invoke(data);
+                    action?.Invoke(data);
                 }
                 return;
             }
@@ -348,13 +342,13 @@ namespace MageQuitModFramework.Utilities
         {
             Debug.Log($"[PhotonHelper] OnEvent called: eventCode={eventCode}, playerNr={playerNr}, hasHandler={_eventHandlers.ContainsKey(eventCode)}");
 
-            if (_eventHandlers.ContainsKey(eventCode))
+            if (_eventHandlers.TryGetValue(eventCode, out Action<object[]> action))
             {
                 try
                 {
-                    var args = content is object[] arr ? arr : new[] { content };
+                    var args = content is object[] arr ? arr : [content];
                     Debug.Log($"[PhotonHelper] Invoking handler for event {eventCode} with {args.Length} args");
-                    _eventHandlers[eventCode]?.Invoke(args);
+                    action?.Invoke(args);
                     Debug.Log($"[PhotonHelper] Handler for event {eventCode} completed");
                 }
                 catch (Exception ex)
@@ -408,7 +402,7 @@ namespace MageQuitModFramework.Utilities
         public static GameObject FindByPhotonViewID(int viewID)
         {
             var photonView = PhotonView.Find(viewID);
-            return photonView != null ? photonView.gameObject : null;
+            return photonView?.gameObject;
         }
 
         /// <summary>
