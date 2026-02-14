@@ -34,10 +34,9 @@ namespace MageQuitModFramework
             Log = Logger;
             Log.LogInfo("MageQuit Mod Framework initialized");
 
-            // Initialize Harmony and patch GameDataInitializer
             _harmony = new Harmony("com.magequit.modframework");
             _harmony.PatchAll(typeof(Data.GameDataInitializer));
-            Log.LogInfo("GameDataInitializer patched");
+            _harmony.PatchAll(typeof(Data.GameEventsObserver));
 
             var menuObj = new GameObject("MageQuitModMenu");
             DontDestroyOnLoad(menuObj);
