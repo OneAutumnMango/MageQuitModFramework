@@ -53,18 +53,17 @@ namespace MageQuitModFramework.UI
         /// <param name="label">Optional label displayed above the field</param>
         /// <param name="currentValue">Current text value of the field</param>
         /// <param name="buttonText">Text displayed on the button</param>
-        /// <param name="buttonClicked">Output parameter indicating if button was clicked</param>
         /// <param name="textWidth">Width of the text field in pixels (default 200)</param>
         /// <param name="buttonWidth">Width of the button in pixels (default 100)</param>
         /// <returns>Tuple containing the updated text value and button click state</returns>
-        public static (string value, bool clicked) TextFieldWithButton(string label, string currentValue, string buttonText, out bool buttonClicked, float textWidth = 200, float buttonWidth = 100)
+        public static (string value, bool clicked) TextFieldWithButton(string label, string currentValue, string buttonText, float textWidth = 200, float buttonWidth = 100)
         {
             if (!string.IsNullOrEmpty(label))
                 GUILayout.Label(label);
 
             GUILayout.BeginHorizontal();
             string result = GUILayout.TextField(currentValue, GUILayout.Width(textWidth));
-            buttonClicked = GUILayout.Button(buttonText, GUILayout.Width(buttonWidth));
+            bool buttonClicked = GUILayout.Button(buttonText, GUILayout.Width(buttonWidth));
             GUILayout.EndHorizontal();
 
             return (result, buttonClicked);
