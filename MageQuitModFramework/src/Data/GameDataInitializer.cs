@@ -9,12 +9,12 @@ namespace MageQuitModFramework.Data
 {
     /// <summary>
     /// Initializes and caches game data when the SpellManager loads.
-    /// Provides access to default spell configurations and fires events when data is ready.
+    /// Provides access to default spell configurations.
     /// </summary>
     /// <remarks>
     /// This class uses a Harmony patch on SpellManager.Awake to detect when game data becomes available.
-    /// Since game data isn't loaded at plugin startup, mods should subscribe to <see cref="OnGameDataLoaded"/>
-    /// or check <see cref="IsLoaded"/> before accessing spell information.
+    /// Since game data isn't loaded at plugin startup, mods should subscribe to GameEventsObserver.SubscribeToGameDataLoaded
+    /// or check GameEventsObserver.IsGameDataLoaded before accessing spell information.
     /// </remarks>
     [HarmonyPatch(typeof(SpellManager), "Awake")]
     public static class GameDataInitializer
@@ -31,26 +31,6 @@ namespace MageQuitModFramework.Data
         /// </summary>
         public static Dictionary<SpellName, Spell> DefaultSpellTable { get; private set; } = [];
 
-        /// <summary>
-        /// Whether game data has been loaded and is available for use.
-        /// </summary>
-        public static bool IsLoaded { get; private set; } = false;
-
-        /// <summary>
-        /// Event fired when game data has been successfully loaded and cached.
-        /// Subscribe to this event to safely access spell data that isn't available at plugin startup.
-        /// </summary>
-        /// <example>
-        /// <code>
-        /// GameDataInitializer.OnGameDataLoaded += () =>
-        /// {
-        ///     // Safe to register spell modifiers here
-        ///     SpellModificationSystem.RegisterModifier(...);
-        /// };
-        /// </code>
-        /// </example>
-        public static event Action OnGameDataLoaded;
-
         static void Postfix(SpellManager __instance)
         {
             SpellManager mgr = __instance ?? Globals.spell_manager;
@@ -58,7 +38,6 @@ namespace MageQuitModFramework.Data
                 return;
 
             FrameworkPlugin.Log.LogInfo("Loading game data...");
-            IsLoaded = true;
 
             DefaultSpellTable = mgr.spell_table.ToDictionary(kvp => kvp.Key, kvp => new Spell(kvp.Value));
 
@@ -67,8 +46,6 @@ namespace MageQuitModFramework.Data
             SpellModificationSystem.InitializeDefaultTable(DefaultSpellTable, DefaultClassAttributes);
 
             FrameworkPlugin.Log.LogInfo("Game data loaded successfully");
-            OnGameDataLoaded?.Invoke();
-            FrameworkPlugin.Log.LogInfo("Fired OnGameDataLoaded event");
         }
 
         private static void PopulateDefaultClassAttributes()
