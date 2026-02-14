@@ -50,6 +50,27 @@ namespace MageQuitModFramework.Spells
         }
 
         /// <summary>
+        /// Sets the base value of a spell attribute directly.
+        /// </summary>
+        /// <param name="name">The spell to modify</param>
+        /// <param name="attribute">Attribute name (e.g., "DAMAGE", "cooldown")</param>
+        /// <param name="baseValue">The new base value to set</param>
+        /// <returns>True if successful, false if spell or attribute not found</returns>
+        public bool TrySetBase(SpellName name, string attribute, float baseValue)
+        {
+            if (!Modifiers.TryGetValue(name, out var mods))
+                return false;
+
+            if (mods.TryGetModifier(attribute, out var modifier))
+            {
+                modifier.Base = baseValue;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Updates a spell attribute by adding to its multiplier (additive change).
         /// </summary>
         /// <param name="name">The spell to modify</param>
