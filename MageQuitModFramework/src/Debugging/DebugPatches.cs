@@ -49,14 +49,39 @@ namespace MageQuitModFramework.Debugging
     [HarmonyPatch]
     public static class Patch_GetAllInSphere_Debug
     {
+        private static readonly Color Red  = new(1f, 0f, 0f, 0.25f);
+        private static readonly Color Blue = new(0f, 0f, 1f, 0.25f);
+
+        // post collision hitboxes to determine damage sources and AoE's
         [HarmonyPatch(typeof(GameUtility), nameof(GameUtility.GetAllInSphere))]
         [HarmonyPrefix]
         static void Prefix(Vector3 center, float radius)
         {
-            DrawDebugSphere(center, radius);
+            DrawDebugSphere(center, radius, Red);
         }
 
-        private static void DrawDebugSphere(Vector3 pos, float radius)
+        // Wizard hitboxes
+        [HarmonyPatch(typeof(WizardController), "Update")]
+        [HarmonyPostfix]
+        static void Postfix(WizardController __instance)
+        {
+            Collider col = __instance.GetComponent<Collider>();
+            if (col is CapsuleCollider capsule)
+                DrawDebugCapsule(capsule, Blue, 0.05f);
+            else
+                DrawDebugSphere(__instance.transform.position, __instance.transform.localScale.x, Blue, 0.05f);
+        }
+
+        public static void ShowSpellHitbox(Spell __instance)
+        {
+            Collider col = __instance.GetComponent<Collider>();
+            if (col is CapsuleCollider capsule)
+                DrawDebugCapsule(capsule, Blue, 0.05f);
+            else
+                DrawDebugSphere(__instance.transform.position, __instance.transform.localScale.x, Blue, 0.05f);
+        }
+
+        private static void DrawDebugSphere(Vector3 pos, float radius, Color color, float duration = 0.1f)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             go.transform.position   = pos;
@@ -67,9 +92,46 @@ namespace MageQuitModFramework.Debugging
 
             var mr = go.GetComponent<MeshRenderer>();
             mr.material       = new Material(Shader.Find("Sprites/Default"));
-            mr.material.color = new Color(1f, 0f, 0f, 0.25f);
+            mr.material.color = color;
 
-            Object.Destroy(go, 0.1f);
+            Object.Destroy(go, duration);
+        }
+
+        // Draws a debug capsule matching the CapsuleCollider's position, rotation, height, and radius
+        private static void DrawDebugCapsule(CapsuleCollider capsule, Color color, float duration = 0.1f)
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            go.transform.position = capsule.transform.position + capsule.center;
+            go.transform.rotation = capsule.transform.rotation;
+            Vector3 scale = Vector3.one;
+            switch (capsule.direction)
+            {
+                case 0: // X axis
+                    scale.x = capsule.height;
+                    scale.y = capsule.radius * 2f;
+                    scale.z = capsule.radius * 2f;
+                    break;
+                case 1: // Y axis (default)
+                    scale.x = capsule.radius * 2f;
+                    scale.y = capsule.height;
+                    scale.z = capsule.radius * 2f;
+                    break;
+                case 2: // Z axis
+                    scale.x = capsule.radius * 2f;
+                    scale.y = capsule.radius * 2f;
+                    scale.z = capsule.height;
+                    break;
+            }
+            go.transform.localScale = scale;
+
+            var col = go.GetComponent<Collider>();
+            if (col) col.enabled = false;
+
+            var mr = go.GetComponent<MeshRenderer>();
+            mr.material = new Material(Shader.Find("Sprites/Default"));
+            mr.material.color = color;
+
+            Object.Destroy(go, duration);
         }
     }
 

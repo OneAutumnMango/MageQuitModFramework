@@ -49,7 +49,7 @@ namespace MageQuitModFramework
 
             _debugModuleManager = ModManager.RegisterMod("Debugger", "com.magequit.modframework.debug");
             _debugModuleManager.RegisterModule(new Debugging.InstantiateLogModule());
-            _debugModuleManager.RegisterModule(new Debugging.DamageHitboxModule());
+            _debugModuleManager.RegisterModule(new Debugging.HitboxModule());
             _debugModuleManager.RegisterModule(new Debugging.DamageHealingLogModule());
 
             ModUIRegistry.RegisterMod(

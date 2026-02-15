@@ -3,6 +3,7 @@
 
 using HarmonyLib;
 using MageQuitModFramework.Modding;
+using MageQuitModFramework.Spells;
 
 namespace MageQuitModFramework.Debugging
 {
@@ -12,7 +13,7 @@ namespace MageQuitModFramework.Debugging
 
         protected override void OnLoad(Harmony harmony)
         {
-            PatchGroup(harmony, typeof(DebugPatches));
+            harmony.PatchAll(typeof(DebugPatches));
         }
 
         protected override void OnUnload(Harmony harmony)
@@ -21,13 +22,16 @@ namespace MageQuitModFramework.Debugging
         }
     }
 
-    public class DamageHitboxModule : BaseModule
+    public class HitboxModule : BaseModule
     {
-        public override string ModuleName => "Damage Hitboxes";
+        public override string ModuleName => "Hitbox Display";
 
         protected override void OnLoad(Harmony harmony)
         {
-            PatchGroup(harmony, typeof(Patch_GetAllInSphere_Debug));
+            harmony.PatchAll(typeof(Patch_GetAllInSphere_Debug));
+            SpellModificationSystem.PatchAllSpellObjects(
+                harmony, "FixedUpdate",
+                postfixMethod: AccessTools.Method(typeof(Patch_GetAllInSphere_Debug), nameof(Patch_GetAllInSphere_Debug.ShowSpellHitbox)));
         }
 
         protected override void OnUnload(Harmony harmony)
@@ -42,7 +46,7 @@ namespace MageQuitModFramework.Debugging
 
         protected override void OnLoad(Harmony harmony)
         {
-            PatchGroup(harmony, typeof(Patch_WizardStatus_rpcApplyDamageHealing));
+            harmony.PatchAll(typeof(Patch_WizardStatus_rpcApplyDamageHealing));
         }
 
         protected override void OnUnload(Harmony harmony)
