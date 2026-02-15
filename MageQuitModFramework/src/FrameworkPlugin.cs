@@ -27,6 +27,7 @@ namespace MageQuitModFramework
 
         private DynamicModMenu _modMenu;
         private Harmony _harmony;
+        private ModuleManager _debugModuleManager;
 
         private void Awake()
         {
@@ -44,6 +45,19 @@ namespace MageQuitModFramework
             _modMenu.Initialize();
 
             PhotonHelper.InitializeEventSystem();
+
+
+            _debugModuleManager = ModManager.RegisterMod("Debugger", "com.magequit.modframework.debug");
+            _debugModuleManager.RegisterModule(new Debugging.InstantiateLogModule());
+            _debugModuleManager.RegisterModule(new Debugging.DamageHitboxModule());
+            _debugModuleManager.RegisterModule(new Debugging.DamageHealingLogModule());
+
+            ModUIRegistry.RegisterMod(
+                "Debugger",
+                "Debug utilities: damage hitboxes, damage/healing logs, unity object instantiation logs",
+                () => {},
+                priority: 1000  // at bottom
+            );
 
             Log.LogInfo("Dynamic mod menu created and ready");
         }
