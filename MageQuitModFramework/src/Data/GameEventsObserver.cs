@@ -46,6 +46,7 @@ namespace MageQuitModFramework.Data
         /// Subscribe to game data loaded event (SpellManager.Awake).
         /// Fires when the SpellManager initializes and spell data becomes available.
         /// Use this to safely access spell data that isn't available at plugin startup.
+        /// WARNING: This will be called every round
         /// </summary>
         public static void SubscribeToGameDataLoaded(Action callback)
         {

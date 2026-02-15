@@ -312,15 +312,21 @@ namespace MageQuitModFramework.Spells
         }
 
         /// <summary>
-        /// Registers a named spell modifier table initialized as a copy of the default table.
+        /// Registers a named spell modifier table initialized as a copy of the default table,
+        /// or returns an existing instance if one is already registered.
         /// </summary>
         /// <param name="key">Unique identifier for the table</param>
         /// <remarks>
         /// This overload automatically creates a copy of the default table for the registered table.
         /// Use this when you want to start with default values and apply modifications.
         /// </remarks>
+        /// <returns>
+        /// The registered spell modifier table for the given key: either an existing instance if present, or a new copy of the default table.
+        /// </returns>
         public static SpellModifierTable RegisterTable(string key)
         {
+            if (_namedTables.TryGetValue(key, out var table))
+                return table;
             var copy = _defaultTable.Copy();
             RegisterTable(key, copy);
             return copy;
