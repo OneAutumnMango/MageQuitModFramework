@@ -1,0 +1,8 @@
+### YamlMime:ManagedReference
+apiRules:
+- exclude:
+    uidRegex: ^MageQuitModFramework\.Debugging
+    type: Namespace
+- exclude:
+    uidRegex: ^MageQuitModFramework\.Debugging\.
+    type: Type

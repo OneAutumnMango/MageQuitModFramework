@@ -151,8 +151,9 @@ public class MyModule : BaseModule
 {
     protected override void OnLoad(Harmony harmony)
     {
-        GameModificationHelpers.PatchAllSpellObjectInit(
+        GameModificationHelpers.PatchAllSpellObjects(
             harmony,
+            methodName: "Init",
             prefixMethod: typeof(MyPatches).GetMethod("InitPrefix"),
             postfixMethod: typeof(MyPatches).GetMethod("InitPostfix")
         );
@@ -165,7 +166,7 @@ public static class MyPatches
     {
         // Called before Init on all spell objects
     }
-    
+
     public static void InitPostfix(SpellObject __instance)
     {
         // Called after Init on all spell objects

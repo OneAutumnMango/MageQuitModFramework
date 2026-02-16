@@ -511,13 +511,14 @@ namespace MageQuitModFramework.Spells
         }
 
         /// <summary>
-        /// Applies Harmony patches to the Init method of all SpellObject types.
+        /// Applies Harmony patches to the specified method of all SpellObject types (eg. Init).
         /// Useful for modifying spell behavior globally at initialization time.
         /// </summary>
         /// <param name="harmony">The Harmony instance to use for patching</param>
-        /// <param name="prefixMethod">Optional prefix method to apply before Init</param>
-        /// <param name="postfixMethod">Optional postfix method to apply after Init</param>
-        public static void PatchAllSpellObjectInit(Harmony harmony, MethodInfo prefixMethod = null, MethodInfo postfixMethod = null)
+        /// <param name="methodName">The name of the method to patch</param>
+        /// <param name="prefixMethod">Optional prefix method to apply before the target method</param>
+        /// <param name="postfixMethod">Optional postfix method to apply after the target method</param>
+        public static void PatchAllSpellObjects(Harmony harmony, string methodName, MethodInfo prefixMethod = null, MethodInfo postfixMethod = null)
         {
             foreach (SpellName name in Enum.GetValues(typeof(SpellName)))
             {
@@ -530,14 +531,14 @@ namespace MageQuitModFramework.Spells
                 if (spellType == null)
                     continue;
 
-                MethodInfo initMethod = spellType.GetMethod("Init", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (initMethod == null)
+                MethodInfo method = spellType.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (method == null)
                     continue;
 
                 HarmonyMethod prefix = prefixMethod != null ? new HarmonyMethod(prefixMethod) : null;
                 HarmonyMethod postfix = postfixMethod != null ? new HarmonyMethod(postfixMethod) : null;
 
-                harmony.Patch(initMethod, prefix: prefix, postfix: postfix);
+                harmony.Patch(method, prefix: prefix, postfix: postfix);
             }
         }
     }
