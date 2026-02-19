@@ -46,6 +46,19 @@ jobs:
 
           zip -r BepInEx.zip BepInEx
 
+      - name: Fail if tag does not match FrameworkPlugin version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -e
+          TAG_NAME="${GITHUB_REF##*/}"
+          VERSION=$(grep -oP '\[BepInPlugin\([^,]+, *[^,]+, *"\K[^"]+' MageQuitModFramework/src/FrameworkPlugin.cs)
+          echo "Tag: $TAG_NAME"
+          echo "FrameworkPlugin version: $VERSION"
+          if [ "$TAG_NAME" != "$VERSION" ]; then
+            echo "::error::Tag ($TAG_NAME) does not match FrameworkPlugin version ($VERSION)" >&2
+            exit 1
+          fi
+
       - name: Upload workflow artifact
         if: startsWith(github.ref, 'refs/tags/') == false
         uses: actions/upload-artifact@v4
