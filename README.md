@@ -10,6 +10,7 @@ A lightweight modding framework for MageQuit that provides spell modification, m
 - **Dynamic mod menu** (F5 to toggle)
 - **UI component registry** for custom mod UIs
 - **RPC helper utilities** for multiplayer communication
+- **NEW!! Debugging mod** to show hitboxes, damage/healing, and unity object creation
 
 ## Installation
 
