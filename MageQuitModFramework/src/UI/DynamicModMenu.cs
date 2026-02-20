@@ -13,10 +13,19 @@ namespace MageQuitModFramework.UI
     public class DynamicModMenu : MonoBehaviour
     {
         private bool _isVisible = false;
-        private Rect _windowRect = new Rect(20, 20, 500, 600);
+        private Rect _windowRect = new Rect(20, 20, 500, 0);
         private Vector2 _scrollPosition = Vector2.zero;
-        private Dictionary<string, bool> _modExpanded = new Dictionary<string, bool>();
-        private Dictionary<string, HashSet<string>> _savedModuleStates = new Dictionary<string, HashSet<string>>();
+        private Dictionary<string, bool> _modExpanded = [];
+        private Dictionary<string, HashSet<string>> _savedModuleStates = [];
+        // True height of the content area, updated every Repaint via GUILayoutUtility.
+        // Kept up-to-date in both scroll and non-scroll modes.
+        private float _measuredContentHeight = 0f;
+
+        private const float WindowWidth = 500f;
+        private const float ModSpacing = 5f;
+        private const float MaxWindowHeight = 800f;
+        // Title bar + vertical margins GUILayout.Window adds around the content area.
+        private const float WindowChrome = 30f;
 
         /// <summary>
         /// Initializes the mod menu component.
@@ -31,15 +40,66 @@ namespace MageQuitModFramework.UI
             if (!_isVisible) return;
 
             GUI.depth = -1000;
-            _windowRect = GUI.Window(12345, _windowRect, DrawModMenu, "Mod Menu (F5 to toggle)");
+
+            bool needsScroll = _measuredContentHeight > MaxWindowHeight - WindowChrome;
+            if (needsScroll)
+            {
+                _windowRect.height = MaxWindowHeight;
+                _windowRect = GUI.Window(12345, _windowRect, DrawModMenu, "Mod Menu (F5 to toggle)");
+            }
+            else
+            {
+                // Let GUILayout.Window auto-size to content when no scroll is needed.
+                _windowRect.height = 0;
+                _windowRect = GUILayout.Window(12345, _windowRect, DrawModMenu, "Mod Menu (F5 to toggle)",
+                    GUILayout.Width(WindowWidth));
+            }
         }
 
         private void DrawModMenu(int windowID)
         {
-            GUILayout.BeginVertical();
+            bool needsScroll = _measuredContentHeight > MaxWindowHeight - WindowChrome;
 
-            _scrollPosition = GUILayout.BeginScrollView(_scrollPosition, GUILayout.Height(550));
+            if (needsScroll)
+            {
+                // viewRect: the visible viewport inside the window, in window-local coords.
+                Rect viewRect = new Rect(4, 20, WindowWidth - 8, MaxWindowHeight - WindowChrome - 4);
+                // contentRect: the full scrollable content area (may be taller than viewRect).
+                Rect contentRect = new Rect(0, 0, WindowWidth - 24, _measuredContentHeight);
+                _scrollPosition = GUI.BeginScrollView(viewRect, _scrollPosition, contentRect);
 
+                // GUILayout.BeginArea creates an isolated layout context inside the scroll view
+                // so content GUILayout calls don't leak into or conflict with the outer window.
+                GUILayout.BeginArea(contentRect);
+                GUILayout.BeginVertical();
+                DrawContent();
+                GUILayout.EndVertical();
+                if (Event.current.type == EventType.Repaint)
+                {
+                    Rect r = GUILayoutUtility.GetLastRect();
+                    if (r.height > 1f) _measuredContentHeight = r.height;
+                }
+                GUILayout.EndArea();
+
+                GUI.EndScrollView();
+            }
+            else
+            {
+                GUILayout.BeginVertical();
+                DrawContent();
+                GUILayout.EndVertical();
+                if (Event.current.type == EventType.Repaint)
+                {
+                    Rect r = GUILayoutUtility.GetLastRect();
+                    if (r.height > 1f) _measuredContentHeight = r.height;
+                }
+            }
+
+            GUI.DragWindow(new Rect(0, 0, WindowWidth, 20f));
+        }
+
+        private void DrawContent()
+        {
             var mods = ModUIRegistry.GetAllMods().ToList();
 
             if (mods.Count == 0)
@@ -132,15 +192,10 @@ namespace MageQuitModFramework.UI
                     }
 
                     GUILayout.EndVertical();
-                    GUILayout.Space(5);
+
+                    GUILayout.Space(ModSpacing);
                 }
             }
-
-            GUILayout.EndScrollView();
-
-            GUILayout.EndVertical();
-
-            GUI.DragWindow(new Rect(0, 0, 500, 20));
         }
 
         /// <summary>
