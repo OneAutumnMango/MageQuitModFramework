@@ -12,7 +12,7 @@ namespace MageQuitModFramework
     /// Main BepInEx plugin for the MageQuit Mod Framework.
     /// Initializes the framework, manages the mod menu, and provides global access to logging.
     /// </summary>
-    [BepInPlugin("com.magequit.modframework", "MageQuit Mod Framework", "1.0.0")]
+    [BepInPlugin("com.magequit.modframework", "MageQuit Mod Framework", "1.1.0")]
     public class FrameworkPlugin : BaseUnityPlugin
     {
         /// <summary>
