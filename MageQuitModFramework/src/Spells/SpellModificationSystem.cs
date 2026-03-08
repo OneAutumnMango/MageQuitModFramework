@@ -276,6 +276,20 @@ namespace MageQuitModFramework.Spells
         private static Dictionary<string, SpellModifierTable> _namedTables = [];
         private static string _loadedTableKey = "default";
 
+        // Registry for SpellObject types added by mods (keyed by SpellName).
+        // Used by PatchAllSpellObjects and GetSpellNameFromTypeName to handle
+        // out-of-range SpellName values that aren't in Enum.GetValues.
+        private static readonly Dictionary<SpellName, Type> _registeredObjectTypes = [];
+
+        /// <summary>
+        /// Registers a SpellObject type for a custom (out-of-range) SpellName.
+        /// Call this from mod OnLoad so the type is known before PatchAllSpellObjects runs.
+        /// </summary>
+        public static void RegisterSpellObjectType(SpellName name, Type objectType)
+        {
+            _registeredObjectTypes[name] = objectType;
+        }
+
         /// <summary>
         /// Gets the immutable default spell modifier table.
         /// </summary>
@@ -392,6 +406,46 @@ namespace MageQuitModFramework.Spells
         }
 
         /// <summary>
+        /// Injects <paramref name="defaultMods"/> into the default table and into every
+        /// already-registered named table (if the spell is not already present).
+        /// Use this when registering a mod-defined spell AFTER InitializeDefaultTable has run,
+        /// to avoid race conditions with tables that were created before the spell was added.
+        /// </summary>
+        public static void InjectIntoAllTables(SpellName name, SpellModifiers defaultMods)
+        {
+            if (_defaultTable != null)
+                _defaultTable.Modifiers[name] = defaultMods;
+
+            foreach (var table in _namedTables.Values)
+            {
+                if (!table.Modifiers.ContainsKey(name))
+                    table.Modifiers[name] = defaultMods.Copy();
+            }
+        }
+
+        /// <summary>
+        /// Applies class-level attribute modifiers (DAMAGE, RADIUS, POWER, Y_POWER) from the
+        /// currently loaded table to <paramref name="spellObjectInstance"/> via reflection.
+        /// Call this immediately after AddComponent&lt;TSpellObject&gt;() and before invoking
+        /// the spell object's init method, for spell objects whose init method name does not
+        /// match the "Init" convention used by PatchAllSpellObjects.
+        /// </summary>
+        public static void ApplyCurrentTableModifiers(object spellObjectInstance, SpellName spellName)
+        {
+            var table = _namedTables.TryGetValue(_loadedTableKey, out var t) ? t : _defaultTable;
+            if (table == null) return;
+
+            var values = new Dictionary<string, float>();
+            foreach (var key in ClassAttributeKeys)
+            {
+                if (table.TryGetModifier(spellName, key, out var mod))
+                    values[key] = mod;
+            }
+
+            Utilities.GameModificationHelpers.ApplyFieldValuesToInstance(spellObjectInstance, values);
+        }
+
+        /// <summary>
         /// Gets the fully qualified type name for a spell's SpellObject class.
         /// </summary>
         /// <param name="name">The spell name</param>
@@ -415,6 +469,11 @@ namespace MageQuitModFramework.Spells
         /// <returns>The corresponding SpellName, or default if not found</returns>
         public static SpellName? GetSpellNameFromTypeName(string typeName)
         {
+            // Check mod-registered types first (handles out-of-range SpellName values).
+            foreach (var kvp in _registeredObjectTypes)
+                if (kvp.Value.Name == typeName)
+                    return kvp.Key;
+
             return typeName switch
             {
                 "StonewallObject"     => SpellName.RockBlock,
@@ -520,6 +579,9 @@ namespace MageQuitModFramework.Spells
         /// <param name="postfixMethod">Optional postfix method to apply after the target method</param>
         public static void PatchAllSpellObjects(Harmony harmony, string methodName, MethodInfo prefixMethod = null, MethodInfo postfixMethod = null)
         {
+            HarmonyMethod prefix  = prefixMethod  != null ? new HarmonyMethod(prefixMethod)  : null;
+            HarmonyMethod postfix = postfixMethod != null ? new HarmonyMethod(postfixMethod) : null;
+
             foreach (SpellName name in Enum.GetValues(typeof(SpellName)))
             {
                 string fullTypeName = GetSpellObjectTypeName(name);
@@ -535,8 +597,15 @@ namespace MageQuitModFramework.Spells
                 if (method == null)
                     continue;
 
-                HarmonyMethod prefix = prefixMethod != null ? new HarmonyMethod(prefixMethod) : null;
-                HarmonyMethod postfix = postfixMethod != null ? new HarmonyMethod(postfixMethod) : null;
+                harmony.Patch(method, prefix: prefix, postfix: postfix);
+            }
+
+            // Also patch any mod-registered SpellObject types (handles out-of-range SpellName values).
+            foreach (var kvp in _registeredObjectTypes)
+            {
+                MethodInfo method = kvp.Value.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (method == null)
+                    continue;
 
                 harmony.Patch(method, prefix: prefix, postfix: postfix);
             }

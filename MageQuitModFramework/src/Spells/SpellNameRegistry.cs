@@ -16,7 +16,7 @@ namespace MageQuitModFramework.Spells
         /// Overwrites any previously registered name for the same spell.
         /// </summary>
         /// <param name="spell">The spell name value (may be a cast out-of-range value)</param>
-        /// <param name="displayName">Human-readable name shown in UI (e.g. "Axe Primary")</param>
+        /// <param name="displayName">Human-readable name shown in UI (e.g. "Rend")</param>
         public static void Register(SpellName spell, string displayName)
         {
             _names[spell] = displayName;
