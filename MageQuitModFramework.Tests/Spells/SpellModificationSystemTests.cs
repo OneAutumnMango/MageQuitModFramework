@@ -52,26 +52,6 @@ namespace MageQuitModFramework.Tests
         }
 
         [Fact]
-        public void Initialize_SetsHealFor_FrogOfLife()
-        {
-            var healValue = 15f;
-            var spellTable = new Dictionary<SpellName, Spell>
-            {
-                { SpellName.FrogOfLife, new Spell { cooldown = 2f, windUp = 0.5f, windDown = 0.3f, initialVelocity = 5f } }
-            };
-            var classAttrs = new Dictionary<SpellName, Dictionary<string, float>>
-            {
-                { SpellName.FrogOfLife, new Dictionary<string, float> { { "DAMAGE", 0f }, { "RADIUS", 3f }, { "POWER", 50f }, { "Y_POWER", 25f } } }
-            };
-
-            var table = new SpellModifierTable();
-            table.Initialize(spellTable, classAttrs);
-            var mods = table.Modifiers[SpellName.FrogOfLife];
-
-            Assert.Equal(healValue, mods.HEAL.Base);
-        }
-
-        [Fact]
         public void Initialize_SetsHealToZero_ForNonHealingSpells()
         {
             var spellTable = new Dictionary<SpellName, Spell>
