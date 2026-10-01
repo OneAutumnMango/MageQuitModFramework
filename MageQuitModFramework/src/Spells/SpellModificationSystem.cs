@@ -47,7 +47,9 @@ namespace MageQuitModFramework.Spells
                     windUp          = new AttributeModifier(spell.windUp),
                     windDown        = new AttributeModifier(spell.windDown),
                     initialVelocity = new AttributeModifier(spell.initialVelocity),
-                    HEAL = _implementedHealingSpells.Contains(name) ? new AttributeModifier(1f) : new AttributeModifier(0) // attribs with 0 base dont get boosted
+                    HEAL     = new AttributeModifier(0f),
+                    DPS      = new AttributeModifier(0f),
+                    DURATION = new AttributeModifier(0f)
                 };
 
                 Modifiers[name] = mods;

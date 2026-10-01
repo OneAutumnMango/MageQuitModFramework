@@ -10,30 +10,36 @@ namespace MageQuitModFramework.Spells
     {
         /// <summary>Damage dealt by the spell.</summary>
         public AttributeModifier DAMAGE { get; set; }
-        
+
         /// <summary>Effect radius of the spell.</summary>
         public AttributeModifier RADIUS { get; set; }
-        
+
         /// <summary>Horizontal knockback power.</summary>
         public AttributeModifier POWER { get; set; }
-        
+
         /// <summary>Vertical knockback power.</summary>
         public AttributeModifier Y_POWER { get; set; }
-        
+
         /// <summary>Spell cooldown duration.</summary>
         public AttributeModifier cooldown { get; set; }
-        
+
         /// <summary>Cast time before spell activates.</summary>
         public AttributeModifier windUp { get; set; }
-        
+
         /// <summary>Recovery time after spell cast.</summary>
         public AttributeModifier windDown { get; set; }
-        
+
         /// <summary>Initial velocity of projectile spells.</summary>
         public AttributeModifier initialVelocity { get; set; }
-        
+
         /// <summary>Heal amount (Frog of Life only).</summary>
         public AttributeModifier HEAL { get; set; }
+
+        /// <summary>Damage per tick for DoT spells (transpiler-only, multiplier-based).</summary>
+        public AttributeModifier DPS { get; set; }
+
+        /// <summary>Application duration for duration-gated spells (transpiler-only, multiplier-based).</summary>
+        public AttributeModifier DURATION { get; set; }
 
         /// <summary>
         /// Resets all attribute multipliers to 1.0, keeping base modifiers intact.
@@ -49,6 +55,8 @@ namespace MageQuitModFramework.Spells
             windDown.ResetMultiplier();
             initialVelocity.ResetMultiplier();
             HEAL.ResetMultiplier();
+            DPS.ResetMultiplier();
+            DURATION.ResetMultiplier();
         }
 
         /// <summary>
@@ -102,7 +110,9 @@ namespace MageQuitModFramework.Spells
                 windUp           = windUp.Copy(),
                 windDown         = windDown.Copy(),
                 initialVelocity  = initialVelocity.Copy(),
-                HEAL             = HEAL.Copy()
+                HEAL             = HEAL.Copy(),
+                DPS              = DPS.Copy(),
+                DURATION         = DURATION.Copy()
             };
         }
     }

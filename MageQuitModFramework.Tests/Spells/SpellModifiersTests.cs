@@ -88,7 +88,9 @@ namespace MageQuitModFramework.Tests
                 windUp          = new AttributeModifier(2f, 1.2f),
                 windDown        = new AttributeModifier(3f, 1.8f),
                 initialVelocity = new AttributeModifier(10f, 4f),
-                HEAL            = new AttributeModifier(75f, 2.2f)
+                HEAL            = new AttributeModifier(75f, 2.2f),
+                DPS             = new AttributeModifier(1f, 1.5f),
+                DURATION        = new AttributeModifier(1f, 2f)
             };
 
             modifiers.ResetAllMultipliers();
@@ -102,6 +104,8 @@ namespace MageQuitModFramework.Tests
             Assert.Equal(1f, modifiers.windDown.Mult);
             Assert.Equal(1f, modifiers.initialVelocity.Mult);
             Assert.Equal(1f, modifiers.HEAL.Mult);
+            Assert.Equal(1f, modifiers.DPS.Mult);
+            Assert.Equal(1f, modifiers.DURATION.Mult);
         }
 
         [Fact]
@@ -119,7 +123,9 @@ namespace MageQuitModFramework.Tests
                 windUp          = new AttributeModifier(2f, 1.2f),
                 windDown        = new AttributeModifier(3f, 1.8f),
                 initialVelocity = new AttributeModifier(10f, 4f),
-                HEAL            = new AttributeModifier(75f, 2.2f)
+                HEAL            = new AttributeModifier(75f, 2.2f),
+                DPS             = new AttributeModifier(1f, 1.5f),
+                DURATION        = new AttributeModifier(1f, 2f)
             };
 
             modifiers.ResetAllMultipliers();
@@ -178,7 +184,9 @@ namespace MageQuitModFramework.Tests
                 windUp          = new AttributeModifier(2f, 1.2f),
                 windDown        = new AttributeModifier(3f, 1.8f),
                 initialVelocity = new AttributeModifier(10f, 4f),
-                HEAL            = new AttributeModifier(75f, 2.2f)
+                HEAL            = new AttributeModifier(75f, 2.2f),
+                DPS             = new AttributeModifier(1f, 1.5f),
+                DURATION        = new AttributeModifier(1f, 2f)
             };
 
             var copy = original.Copy();
@@ -187,6 +195,10 @@ namespace MageQuitModFramework.Tests
             Assert.Equal(original.DAMAGE.Mult, copy.DAMAGE.Mult);
             Assert.Equal(original.RADIUS.Value, copy.RADIUS.Value);
             Assert.NotSame(original.DAMAGE, copy.DAMAGE);
+            Assert.Equal(original.DPS.Mult, copy.DPS.Mult);
+            Assert.NotSame(original.DPS, copy.DPS);
+            Assert.Equal(original.DURATION.Mult, copy.DURATION.Mult);
+            Assert.NotSame(original.DURATION, copy.DURATION);
         }
 
         [Fact]
@@ -202,7 +214,9 @@ namespace MageQuitModFramework.Tests
                 windUp = new AttributeModifier(2f, 1.2f),
                 windDown = new AttributeModifier(3f, 1.8f),
                 initialVelocity = new AttributeModifier(10f, 4f),
-                HEAL = new AttributeModifier(75f, 2.2f)
+                HEAL = new AttributeModifier(75f, 2.2f),
+                DPS = new AttributeModifier(1f, 1.5f),
+                DURATION = new AttributeModifier(1f, 2f)
             };
 
             var copy = original.Copy();
