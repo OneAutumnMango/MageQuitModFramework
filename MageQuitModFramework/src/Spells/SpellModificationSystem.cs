@@ -16,6 +16,11 @@ namespace MageQuitModFramework.Spells
         /// </summary>
         public Dictionary<SpellName, SpellModifiers> Modifiers { get; private set; } = [];
 
+        private HashSet<SpellName> _implementedHealingSpells = [
+            SpellName.FrogOfLife,
+            SpellName.Tonic
+        ];
+
         /// <summary>
         /// Initializes the table with default game values.
         /// </summary>
@@ -28,7 +33,7 @@ namespace MageQuitModFramework.Spells
             foreach (SpellName name in defaultSpellTable.Keys)
             {
                 var spell = defaultSpellTable[name];
-                var classAttrs = defaultClassAttributes.ContainsKey(name) ? defaultClassAttributes[name] : new Dictionary<string, float>();
+                var classAttrs = defaultClassAttributes.ContainsKey(name) ? defaultClassAttributes[name] : [];
 
                 float GetAttr(string key) => classAttrs.TryGetValue(key, out var val) ? val : 0f;
 
@@ -42,7 +47,7 @@ namespace MageQuitModFramework.Spells
                     windUp          = new AttributeModifier(spell.windUp),
                     windDown        = new AttributeModifier(spell.windDown),
                     initialVelocity = new AttributeModifier(spell.initialVelocity),
-                    HEAL = name == SpellName.FrogOfLife ? new AttributeModifier(15f) : new AttributeModifier(0)
+                    HEAL = _implementedHealingSpells.Contains(name) ? new AttributeModifier(1f) : new AttributeModifier(0) // attribs with 0 base dont get boosted
                 };
 
                 Modifiers[name] = mods;
