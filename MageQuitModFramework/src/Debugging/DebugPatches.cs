@@ -4,6 +4,7 @@
 using HarmonyLib;
 using UnityEngine;
 using System.Reflection;
+using MageQuitModFramework.Spells;
 
 namespace MageQuitModFramework.Debugging
 {
@@ -187,6 +188,29 @@ namespace MageQuitModFramework.Debugging
         static void HealingPostfix(WizardStatus __instance, float healing, int owner)
         {
             FrameworkPlugin.Log?.LogInfo($"[Healing Log] Wizard's current health: {__instance.health}, healing applied: {healing}");
+        }
+    }
+
+    public static class PlayerKiller
+    {
+        public static void KillSelf()
+        {
+            var player = SpellModificationSystem.GetLocalPlayer();
+            if (player == null)
+            {
+                FrameworkPlugin.Log?.LogInfo("[PlayerKiller] No local player found.");
+                return;
+            }
+
+            var status = GameUtility.GetWizard(player.playerNumber).GetComponent<WizardStatus>();
+
+            if (status == null)
+            {
+                FrameworkPlugin.Log?.LogInfo("[PlayerKiller] No wizard status found for the local player.");
+                return;
+            }
+
+            status.DieRightNow(9999, -1);
         }
     }
 }

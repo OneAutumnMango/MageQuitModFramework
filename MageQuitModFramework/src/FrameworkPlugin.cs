@@ -55,7 +55,10 @@ namespace MageQuitModFramework
             ModUIRegistry.RegisterMod(
                 "Debugger",
                 "Debug utilities: damage hitboxes, damage/healing logs, unity object instantiation logs",
-                () => {},
+                () => {
+                    if (UIComponents.Button("Kill Self"))
+                        Debugging.PlayerKiller.KillSelf();
+                },
                 priority: 1000  // at bottom
             );
 
