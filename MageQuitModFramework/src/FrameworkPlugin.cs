@@ -38,6 +38,9 @@ namespace MageQuitModFramework
             _harmony = new Harmony("com.magequit.modframework");
             _harmony.PatchAll(typeof(Data.GameDataInitializer));
             _harmony.PatchAll(typeof(Data.GameEventsObserver));
+            _harmony.PatchAll(typeof(Debugging.PlayerUtils));
+            Debugging.PlayerUtils.PatchAll(_harmony);
+
 
             var menuObj = new GameObject("MageQuitModMenu");
             DontDestroyOnLoad(menuObj);
@@ -55,10 +58,7 @@ namespace MageQuitModFramework
             ModUIRegistry.RegisterMod(
                 "Debugger",
                 "Debug utilities: damage hitboxes, damage/healing logs, unity object instantiation logs",
-                () => {
-                    if (UIComponents.Button("Kill Self"))
-                        Debugging.PlayerKiller.KillSelf();
-                },
+                AddModButtons,
                 priority: 1000  // at bottom
             );
 
@@ -71,6 +71,67 @@ namespace MageQuitModFramework
             {
                 ToggleModMenu();
             }
+        }
+
+        /// <summary>
+        /// Adds all mod buttons to the mod menu.
+        /// </summary>
+        public void AddModButtons()
+        {
+            AddTogglePlayerInvincibilityButton();
+            AddToggleGodModeButton();
+            AddHPModButtons();
+            AddKillSelfButton();
+        }
+
+        /// <summary>
+        /// Adds a toggle button for player invincibility to the mod menu.
+        /// </summary>
+        public void AddTogglePlayerInvincibilityButton()
+        {
+            string label = $"Invincibility {(Debugging.PlayerUtils.Invincible ? "ON" : "OFF")}";
+            if (UIComponents.Button(label))
+            {
+                Debugging.PlayerUtils.ToggleInvincibility();
+                Log.LogInfo($"Invincibility toggled to {(Debugging.PlayerUtils.Invincible ? "ON" : "OFF")}");
+            }
+        }
+
+        /// <summary>
+        /// Adds a toggle button for god mode to the mod menu.
+        /// </summary>
+        public void AddToggleGodModeButton()
+        {
+            string label = $"God Mode {(Debugging.PlayerUtils.GodMode ? "ON" : "OFF")}";
+            if (UIComponents.Button(label))
+            {
+                Debugging.PlayerUtils.ToggleGodMode();
+                Log.LogInfo($"God Mode toggled to {(Debugging.PlayerUtils.GodMode ? "ON" : "OFF")}");
+            }
+        }
+
+        /// <summary>
+        /// Adds a button to the mod menu that allows the player to kill themselves.
+        /// </summary>
+        public void AddKillSelfButton()
+        {
+            if (UIComponents.Button("Kill Self"))
+                Debugging.PlayerUtils.KillSelf();
+        }
+
+        /// <summary>
+        /// Adds buttons to the mod menu for modifying the player's HP.
+        /// </summary>
+        public void AddHPModButtons()
+        {
+            if (UIComponents.Button("100% HP"))
+                Debugging.PlayerUtils.FullHP();
+
+            if (UIComponents.Button("50% HP"))
+                Debugging.PlayerUtils.HalfHP();
+
+            if (UIComponents.Button("25% HP"))
+                Debugging.PlayerUtils.QuarterHP();
         }
 
         /// <summary>
